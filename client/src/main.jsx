@@ -7,10 +7,5 @@ import { Socketprovider } from './features/socket/context/socketProvider.jsx'
 import { AuthProvider } from './features/authentication/context/authContext.jsx'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <AuthProvider>
-    <Socketprovider>
       <App/>
-    </Socketprovider>
-  </AuthProvider>
-  
 )

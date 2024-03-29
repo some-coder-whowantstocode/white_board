@@ -1,33 +1,42 @@
-import React from 'react'
-import styled from 'styled-components'
+import React, { useState } from 'react'
 
+import Icon from './Icon'
+import DropIcon from './DropIcon';
+import { useCanvas } from '../context/canvasProvider';
 
-const Icon = styled.div`
-    font-size: 20px;
-    margin: 10px;
-    padding: 3px 5px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-    width: fit-content;
-    cursor: pointer;
-    &:hover{
-    box-shadow: 0px 1px 4px 0px rgba(0,0,0,0.75);
-    }
-    ${props=> props.sel === "true" && `
-    color:gray;
-    box-shadow: 0px 1px 4px 0px rgba(0,0,0,0.75);
-    `
-}
-`
+const Icons = ({icons}) => {
 
-const Icons = ({icon,func,selected}) => {
+  const { currentMode} = useCanvas();
+
   return (
-    <Icon sel={String(selected)} onClick={()=>func()}>
-        {React.createElement(icon,{})}
-    </Icon>
+    <>
+    {icons.map(({ icon,des, func ,mode, shape , parentIcon, innericons }, i) => (
+      <div 
+      key={i} 
+      onClick={(e) => {
+        func && func();
+      }} 
+      >
+        {
+          parentIcon ? 
+          <DropIcon 
+          icon={icon}
+          childicons={innericons}
+          name={des}
+          />
+          :
+          <Icon
+          name={des}
+          selected={mode===currentMode.mode && shape === currentMode.shape}
+          icon={icon}
+          
+          />
+        }
+      </div>
+    ))}
+    </>
+
+  
   )
 }
 

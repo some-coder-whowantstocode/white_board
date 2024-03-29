@@ -1,8 +1,6 @@
 
 export default class Shapes {
     constructor(canvas,shape,line,border){
-        this.x = null;
-        this.y = null;
         this.drag = false;
         this.shapes = ['line','circle','rect']
         this.shape = this.shapes[shape];
@@ -14,23 +12,22 @@ export default class Shapes {
         /* move x and y decide how much the element will move */
         this.movex = 0;
         this.movey = 0;
-        this.height = null;
-        this.width = null;
         this.canvas = canvas;
         this.context = this.canvas.getContext('2d');
         this.linewidth = line;
         this.borderwidth = border;
         this.frame = 10;
-
+        this.Border = {x:null,y:null,height:null,width:null};
+        this.canvasPos = {x:null,y:null};
     }
 
-    move(x,y){
+    updateBorder(x,y){
         if(!this.initx){
             this.initx = x;
             this.inity = y;
         }else{
-            this.movex = this.initx -  x ;
-            this.movey = this.inity -  y ;
+            this.movex = 2 *( ( this.initx -  x)/ this.scale)  ;
+            this.movey = 2 *( (this.inity -  y)/ this.scale) ;
             this.initx = x;
             this.inity = y;
         }
@@ -43,12 +40,15 @@ export default class Shapes {
     }
 
     border(){
+        console.log('border',this.Border.x,this.Border.y,this.Border.width,this.Border.height)
         this.context.lineWidth = this.borderwidth;
-        this.context.rect(this.x,this.y,this.width,this.height)
+        this.context.rect(this.Border.x,this.Border.y,this.Border.width,this.Border.height)
         this.context.stroke()
     }
 
-    while_moving(){
-        
+    resize(scale,x,y){
+        this.scale = scale;
+        this.canvasPos.x = x;
+        this.canvasPos.y = y;
     }
 }

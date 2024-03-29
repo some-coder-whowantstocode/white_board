@@ -1,21 +1,44 @@
 import './App.css'
-import Canvas from './features/canvas/components/Canvas.jsx';
+import { IconBox } from './assets/icons.js';
+import Canvas from './pages/Canvas.jsx';
 import Controller from './features/canvas/components/Controller.jsx'
 import { CanvasProvider } from './features/canvas/context/canvasProvider.jsx';
-import { IconProvider } from './features/canvas/context/iconContext.jsx';
-import { useSocket } from './features/socket/context/socketProvider.jsx'
+import Filespace from './pages/Filespace.jsx';
+import { FileProvider } from './features/filesystem/context/FileContext.jsx';
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes
+} from 'react-router-dom';
+import {pagelocation} from './pages/pagesheet.js';
 
 function App() {
-  const {} = useSocket()
+
   return (
-    <>
-    <IconProvider>
-    <CanvasProvider>
-      <Canvas/>
-      <Controller/>
-    </CanvasProvider>
-    </IconProvider>
-    </>
+    <Router>
+      <Routes>
+    
+      <Route 
+      path={pagelocation.canvas}  
+      element={ 
+      <CanvasProvider>
+        <Canvas/>
+        <Controller/>
+      </CanvasProvider>}
+      >
+      </Route>
+
+      <Route 
+      path={`/${pagelocation.filespace}`} 
+      element={
+          <FileProvider>
+            <Filespace/>
+          </FileProvider>
+      }>
+      </Route>
+
+      </Routes>
+    </Router>
   )
 }
 
