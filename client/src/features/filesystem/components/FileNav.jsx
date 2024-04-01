@@ -72,12 +72,14 @@ const FileNav = () => {
     <NavBox>
         <Nav ref={navref} style={{ width: `${width}px`, transition: "all 0.2s" }}>
         <Top width={`${width === width_limit.logo}`}>
-            <Menu width={`${width === width_limit.logo}`}>
+            <Menu width={`${width === width_limit.logo}`}
+            onClick={ () => {
+              BurgerMenu.func();
+          }}
+            >
             <Logo >
                 {React.createElement(BurgerMenu.icon, {
-                onClick: () => {
-                    BurgerMenu.func();
-                },
+                
                 })}
             </Logo>
             </Menu>

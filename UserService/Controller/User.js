@@ -11,7 +11,7 @@ const sendmail = require('../services/Mail.js');
 
 const Register = async(req, res) => {
     const { name, email, password } = req.body;
-  
+    console.log(req.body,req.headers)  
     if (!name || !email || !password) {
      throw new BadRequest('Please provide all required');      
     }
