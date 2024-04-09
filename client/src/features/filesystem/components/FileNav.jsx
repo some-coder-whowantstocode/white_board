@@ -14,7 +14,7 @@ import {
 } from "../styles/filenav";
 import { useFile } from "../context/FileContext";
 import { useNavigate } from "react-router-dom";
-import { pagelocation } from "../../../pages/pagesheet";
+import { pagelocation } from "../../../assets/pagesheet.js";
 import home from '../../../assets/white board logo.png'
 
 const FileNav = () => {

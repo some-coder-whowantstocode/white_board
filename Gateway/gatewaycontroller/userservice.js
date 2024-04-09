@@ -1,15 +1,36 @@
-const { createProxyMiddleware } = require("http-proxy-middleware"); 
+const createError = require('http-errors');
 
 
-const userRegisterProxy = createProxyMiddleware({ 
-		target: process.env.USER_SERVICE_URL, 
-		changeOrigin: true,
-        pathRewrite:{
-            '^/user/register':''
-        }
-	}) 
+const userRegisterchecker = (req,res,next) =>{
+    const { body: { name, email, password } = {} } = req;
+
+    if (!name || !email || !password) {
+        return next(createError.BadRequest('Please provide all credentials gateway.'));
+    }
+
+	req.body = {
+		name,email,password
+	}
+
+    next();
+}
+
+const userLoginchecker = (req,res,next)=>{
+    const { body: { email, password } = {} } = req;
+
+    if (!email || !password) {
+        return next(createError.BadRequest('Please provide all credentials gateway.'));
+    }
+
+	req.body = {
+		email,password
+	}
+
+    next();
+}
 
 
 module.exports = {
-    userRegisterProxy
+    userRegisterchecker,
+    userLoginchecker
 }

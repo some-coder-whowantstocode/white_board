@@ -1,7 +1,9 @@
-module.exports.Filter = (req,res,next)=>{
+const createError = require('http-errors');
+
+module.exports.Filter = async(req,res,next)=>{
     if(req.headers.origin !== process.env.Allowed_ORIGIN){
-        res.status(401).json({ message: 'Unauthorized' });
-        return;
+        let err = createError(401, 'Unauthorized!')
+        next(err)
     }
     next();
 }

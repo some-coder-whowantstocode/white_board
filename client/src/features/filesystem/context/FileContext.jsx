@@ -2,7 +2,7 @@ import { createContext, useContext, useState } from "react";
 import { IconBox } from "../../../assets/icons";
 import { getallFiles } from "../../database/services/indexedDB";
 import { useNavigate } from "react-router-dom";
-import { pagelocation } from "../../../pages/pagesheet";
+import { pagelocation } from '../../../assets/pagesheet';
 
 const fileContext = createContext(null);
 

@@ -4,7 +4,7 @@ import { IconBox } from '../../../assets/icons'
 import { removeNode } from '../../database/services/indexedDB'
 import { useFile } from '../context/FileContext'
 import { useNavigate } from 'react-router-dom'
-import { pagelocation } from '../../../pages/pagesheet'
+import { pagelocation } from '../../../assets/pagesheet.js'
 
 
 const File = styled.div`

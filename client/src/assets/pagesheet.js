@@ -1,4 +1,5 @@
 export const pagelocation = {
     canvas:'/',
-    filespace:'files'
+    filespace:'files',
+    auth:'auth'
 }

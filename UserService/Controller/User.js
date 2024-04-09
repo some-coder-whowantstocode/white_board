@@ -11,9 +11,10 @@ const sendmail = require('../services/Mail.js');
 
 const Register = async(req, res) => {
     const { name, email, password } = req.body;
-    console.log(req.body,req.headers)  
+    //use bloom filter to check
+    console.log(req.body)
     if (!name || !email || !password) {
-     throw new BadRequest('Please provide all required');      
+    throw new BadRequest('Please provide all required');      
     }
 
     await sendmail('login',"are you this man",email)

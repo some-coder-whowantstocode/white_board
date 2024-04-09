@@ -3,7 +3,7 @@ import { createContext, useContext, useRef, useState } from "react";
 import { addNode, updateNode } from '../../database/services/indexedDB.js'
 import { IconBox } from "../../../assets/icons.js";
 import { useNavigate } from "react-router-dom";
-import { pagelocation } from "../../../pages/pagesheet.js";
+import { pagelocation } from '../../../assets/pagesheet.js';
 
 const canvasContext = createContext(null);
 
@@ -106,8 +106,14 @@ export const CanvasProvider =({children})=>{
         {
             icon:IconBox.FOLDERS.icon,
             type:IconBox.FOLDERS.name,
-            func(){navigate(`${pagelocation.filespace}`)},
-        }]
+            func(){navigate(pagelocation.filespace)},
+        },
+        {
+            icon:IconBox.USER.icon,
+            type:IconBox.USER.name,
+            func(){navigate(pagelocation.auth)},
+        }
+    ]
 
 
     return (

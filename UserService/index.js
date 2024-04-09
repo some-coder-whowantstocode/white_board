@@ -10,7 +10,7 @@ const connectDB = require('./DB/mongodbconnection.js');
 const errorhandler = require('./Middleware/errorhandler.js');
 
 app.use(bodyParser.json());
-app.use('/user',userrouter);
+app.use('/user', userrouter);
 app.use(errorhandler)
 
 

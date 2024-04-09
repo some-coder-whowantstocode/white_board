@@ -1,4 +1,4 @@
-import { FaRegCircle, FaShapes, FaFolder, FaTrash, FaHome } from "react-icons/fa";
+import { FaRegCircle, FaShapes, FaFolder, FaTrash, FaHome, FaRegUserCircle  } from "react-icons/fa";
 import { GoPencil } from "react-icons/go";
 import { CiUndo,CiRedo } from "react-icons/ci";
 import { IoIosMove, IoIosSave, IoMdAdd } from "react-icons/io";
@@ -59,5 +59,9 @@ export const IconBox = {
     HOME:{
         name:'Return',
         icon:GiEntryDoor
+    },
+    USER:{
+        name:'user',
+        icon:FaRegUserCircle
     }
 }

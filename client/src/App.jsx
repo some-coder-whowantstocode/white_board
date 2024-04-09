@@ -1,5 +1,4 @@
 import './App.css'
-import { IconBox } from './assets/icons.js';
 import Canvas from './pages/Canvas.jsx';
 import Controller from './features/canvas/components/Controller.jsx'
 import { CanvasProvider } from './features/canvas/context/canvasProvider.jsx';
@@ -10,7 +9,8 @@ import {
   Route,
   Routes
 } from 'react-router-dom';
-import {pagelocation} from './pages/pagesheet.js';
+import {pagelocation} from './assets/pagesheet.js';
+import Auth from './pages/Auth.jsx';
 
 function App() {
 
@@ -34,6 +34,13 @@ function App() {
           <FileProvider>
             <Filespace/>
           </FileProvider>
+      }>
+      </Route>
+
+      <Route 
+      path={`/${pagelocation.auth}`} 
+      element={
+        <Auth/>
       }>
       </Route>
 

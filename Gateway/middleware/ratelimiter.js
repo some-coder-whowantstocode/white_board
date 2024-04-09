@@ -1,5 +1,7 @@
-module.exports.Ratelimiter = (clients,bucketduration,bucketlimit)=>{
-    return function(req,res,next){
+const geoip = require('geoip-lite');
+
+const Ratelimiter = (clients,bucketduration,bucketlimit)=>{
+    return async function(req,res,next){
             const IP = req.ip || req.headers['x-forwarded-for'];
             const now = Date.now();
             const clientqueue = clients.get(IP) || [];
@@ -14,3 +16,5 @@ module.exports.Ratelimiter = (clients,bucketduration,bucketlimit)=>{
             next();
     }
 }
+
+module.exports = Ratelimiter
