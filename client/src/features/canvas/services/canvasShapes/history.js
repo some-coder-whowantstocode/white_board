@@ -146,7 +146,7 @@ export class CanvasTree{
         this.context.translate(this.x, this.y );
         this.context.scale(this.scale, this.scale);
         this.context.fillStyle = this.canvas_color;
-        this.context.fillRect(0,0,this.canvas.width,this.canvas.height)
+        // this.context.fillRect(0,0,this.canvas.width,this.canvas.height)
         let arr = this.current_node.val;
         for(let i=0;i<arr.length;i++){
             arr[i].redraw();

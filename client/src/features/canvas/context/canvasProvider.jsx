@@ -4,17 +4,25 @@ import { addNode, updateNode } from '../../database/services/indexedDB.js'
 import { IconBox } from "../../../assets/icons.js";
 import { useNavigate } from "react-router-dom";
 import { pagelocation } from '../../../assets/pagesheet.js';
+import { useDispatch, useSelector } from "react-redux";
+import { downscale, move, upscale, changeMode } from "../slices/canvasSlice.js";
+import { redo, undo } from "../slices/shapesSlice.js";
+
+
 
 const canvasContext = createContext(null);
 
-export const CanvasProvider =({children})=>{
+export const CanvasProvider =({children})=>{    
+    
+    const dispatch = useDispatch();
 
     const navigate = useNavigate();
 
     const MODES = {
-        Draw :'Draw',
-        Shapes:'Shapes',
-        Move:'Move'
+        Draw :0,
+        Shapes:3,
+        Move:1,
+        Cursor:2
     }
 
     const SHAPES = {
@@ -24,8 +32,8 @@ export const CanvasProvider =({children})=>{
     }
     
     const canvasBoard = useRef(null);
-    const [currentMode, changeMode]  = useState({mode:MODES.Draw,shape:SHAPES.NONE});
-    const mouse = useRef({x:0,y:0,draw:false});
+    // const [currentMode, changeMode]  = useState({mode:MODES.Draw,shape:SHAPES.NONE});
+    // const mouse = useRef({x:0,y:0,draw:false});
 
     const addshapes = (val)=>{
         if(canvasBoard.current){
@@ -37,16 +45,15 @@ export const CanvasProvider =({children})=>{
 
     const controlIcon_shapes = [{
             icon:IconBox.CIRCLE.icon,
-            func(){changeMode({mode:MODES.Shapes,shape:SHAPES.CIRCLE})},
+            func(){changeMode(3)},
             type:IconBox.DRAW.name,
             shape:IconBox.CIRCLE.name,
             mode:MODES.Shapes,
             selectable:true
         },
-
         {
             icon:IconBox.RECT.icon,
-            func(){changeMode({mode:MODES.Shapes,shape:SHAPES.RECT})},
+            func(){changeMode(3)},
             type:IconBox.DRAW.name,
             shape:IconBox.RECT.name,
             mode:MODES.Shapes,
@@ -66,6 +73,8 @@ export const CanvasProvider =({children})=>{
         }
     ]
 
+    const sizeControl_Icons = []
+
     const controlIcons = [{
             icon:IconBox.SHAPES.icon,
             innericons:controlIcon_shapes,
@@ -75,7 +84,7 @@ export const CanvasProvider =({children})=>{
 
         {
             icon:IconBox.DRAW.icon,
-            func(){changeMode({mode:MODES.Draw,shape:SHAPES.NONE})},
+            func(){dispatch(changeMode(0))},
             type:IconBox.DRAW.name,
             mode:MODES.Draw,
             shape:SHAPES.NONE,
@@ -84,19 +93,19 @@ export const CanvasProvider =({children})=>{
 
         {
             icon:IconBox.UNDO.icon,
-            func(){canvasBoard.current.back()},
+            func(){dispatch(undo())},
             type:IconBox.UNDO.name
         },
 
         {
             icon:IconBox.REDO.icon,
-            func(){canvasBoard.current.next()},
+            func(){dispatch(redo())},
             type:IconBox.REDO.name
         },
 
         {
             icon:IconBox.MOVE.icon,
-            func(){changeMode({mode:MODES.Move,shape:SHAPES.NONE})},
+            func(){dispatch(changeMode(1))},
             type:IconBox.MOVE.name,
             mode:MODES.Move,
             shape:SHAPES.NONE,
@@ -112,6 +121,26 @@ export const CanvasProvider =({children})=>{
             icon:IconBox.USER.icon,
             type:IconBox.USER.name,
             func(){navigate(pagelocation.auth)},
+        },
+        {
+            icon:IconBox.ADD.icon,
+            func(){dispatch(upscale())},
+            shape:IconBox.ADD.name,
+            mode:MODES.Shapes,
+        },
+        {
+            icon:IconBox.MINUS.icon,
+            func(){dispatch(downscale())},
+            shape:IconBox.MINUS.name,
+            mode:MODES.Shapes,
+        },
+        {
+            icon:IconBox.CURSOR.icon,
+            func(){dispatch(changeMode(MODES.Cursor))},
+            type:IconBox.CURSOR.name,
+            mode:MODES.Cursor,
+            shape:SHAPES.NONE,
+            selectable:true
         }
     ]
 
@@ -122,13 +151,12 @@ export const CanvasProvider =({children})=>{
             MODES,
             SHAPES, 
             addshapes, 
-            currentMode, 
-            mouse, 
             canvasBoard, 
             controlIcons, 
             controlIcon_shapes, 
             sizes, 
-            setsizes
+            setsizes,
+            sizeControl_Icons
             }}>
 
         {children}

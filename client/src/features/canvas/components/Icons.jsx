@@ -1,19 +1,22 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import Icon from './Icon'
 import DropIcon from './DropIcon';
 import { useCanvas } from '../context/canvasProvider';
+import { useSelector } from 'react-redux';
 
 const Icons = ({icons}) => {
 
-  const { currentMode} = useCanvas();
-
+  const SELECTED = useSelector((state)=>state.canvas.currentmode)
+ 
   return (
     <>
     {icons.map(({ icon,des, func ,mode, shape , parentIcon, innericons }, i) => (
       <div 
       key={i} 
       onClick={(e) => {
+
+        console.log(mode,SELECTED)
         func && func();
       }} 
       >
@@ -27,7 +30,7 @@ const Icons = ({icons}) => {
           :
           <Icon
           name={des}
-          selected={mode===currentMode.mode && shape === currentMode.shape}
+          selected={mode==SELECTED}
           icon={icon}
           
           />
