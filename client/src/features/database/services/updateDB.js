@@ -51,6 +51,9 @@ const updateNode = async(name, page,img)=>{
     const request = index.get([name])
     request.onsuccess = ()=> {
         const node = request.result;
+        if(!node){
+            addNode(name)
+        }
         node.page = page;
         const updateRequest = store.put(node);
         updateRequest.onsuccess = () => {

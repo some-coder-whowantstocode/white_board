@@ -17,16 +17,30 @@ export const canvasSlice = createSlice({
         currentmode:0,
     },
     reducers:{
+        clearcanvas(state){
+            state.x=0,
+            state.y=0,
+            state.scale=1,
+            state.height=window.innerHeight,
+            state.width=window.innerWidth,
+            state.maxscale=2,
+            state.minscale=0.2,
+            state.scaleunit=0.1,
+            state.background='white',
+            state.modes=['draw','move','cursor','shapes'],
+            state.currentmode=0
+        },
         addcanvas(state,action){
-            console.log(action.payload)
             let obj = action.payload;
             Object.keys(obj).forEach(key => {
                 state[key] = obj[key];
             });
+            console.log(state.x,state.y,action.payload)
         },
         move(state,action){
-            state.x = action.payload.x;
-            state.y = action.payload.y;
+            state.x += action.payload.x;
+            state.y += action.payload.y;
+            
         },
         changeMode(state,action){
             state.currentmode = action.payload
@@ -45,6 +59,6 @@ export const canvasSlice = createSlice({
     }
 })
 
-export const { move, upscale, downscale, changebackground, changeMode, addcanvas } = canvasSlice.actions;
+export const { move, upscale, downscale, changebackground, changeMode, addcanvas, clearcanvas } = canvasSlice.actions;
 
 export default canvasSlice.reducer;

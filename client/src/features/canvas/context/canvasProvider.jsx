@@ -5,8 +5,8 @@ import { IconBox } from "../../../assets/icons.js";
 import { useNavigate } from "react-router-dom";
 import { pagelocation } from '../../../assets/pagesheet.js';
 import { useDispatch, useSelector } from "react-redux";
-import { downscale, move, upscale, changeMode } from "../slices/canvasSlice.js";
-import { redo, undo } from "../slices/shapesSlice.js";
+import { downscale, move, upscale, changeMode, clearcanvas } from "../slices/canvasSlice.js";
+import { clearshape, redo, undo } from "../slices/shapesSlice.js";
 
 
 
@@ -75,12 +75,13 @@ export const CanvasProvider =({children})=>{
 
     const sizeControl_Icons = []
 
-    const controlIcons = [{
-            icon:IconBox.SHAPES.icon,
-            innericons:controlIcon_shapes,
-            type:IconBox.SHAPES.name,
-            parentIcon:true,
-        },
+    const controlIcons = [
+        // {
+        //     icon:IconBox.SHAPES.icon,
+        //     innericons:controlIcon_shapes,
+        //     type:IconBox.SHAPES.name,
+        //     parentIcon:true,
+        // },
 
         {
             icon:IconBox.DRAW.icon,
@@ -115,7 +116,11 @@ export const CanvasProvider =({children})=>{
         {
             icon:IconBox.FOLDERS.icon,
             type:IconBox.FOLDERS.name,
-            func(){navigate(pagelocation.filespace)},
+            func(){
+                navigate(pagelocation.filespace)
+                dispatch(clearshape());
+                dispatch(clearcanvas());
+            },
         },
         {
             icon:IconBox.USER.icon,

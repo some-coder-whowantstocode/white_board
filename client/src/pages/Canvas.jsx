@@ -67,6 +67,7 @@ const Canvas = () => {
   const [canvasmove,setmoving] = useState(false);
   const [freedraw,setdraw] = useState(false);
   const [hold,sethold] = useState(false);
+  const [drawingcanvas,setdrawing] = useState(null);
 
   const observer = new ResizeObserver(()=>{
     const elem = moveref.current;
@@ -80,7 +81,8 @@ const Canvas = () => {
     const { store, size, color, currentPage, minpages, maxpages, pages } = SHAPE;
     const canvasData = {x, y, scale, height, width, background};
     const shapeData = { store, size, color, currentPage, minpages, maxpages, pages }
-    let imgData = context.getImageData(0,0,CANVAS.width,CANVAS.height);
+    let imgData = context.getImageData(0,0,CANVAS.width ,CANVAS.height );
+    setdrawing(imgData);
     const data = {
       drawing:imgData,
       canvasData,
@@ -90,22 +92,23 @@ const Canvas = () => {
     // file = JSON.stringify(file);
     // file = encodeURIComponent(file);
     const img = canvas.toDataURL('image/png');
-    const name = localStorage.getItem('name');
+    const name = localStorage.getItem('whiteboard');
+    console.log(file)
     updateNode(name,file,img);
   }
 
   const DrawLine = () => {
     
     if(freedraw){
-            const overcanvas = overCanvasRef.current;
-            const overcontext = overcanvas.getContext('2d');
-            let x = (mouse.x-  mouse.movex ) , y = (mouse.y- mouse.movey)  ;
+            const canvas = canvasRef.current;
+            const overcontext = canvas.getContext('2d');
+            let x = (mouse.x-  CANVAS.x ) , y = (mouse.y- CANVAS.y)  ;
             dispatch(addLine({ x:x/SCALE, y:y/SCALE}));
             overcontext.lineCap = 'round';
             overcontext.lineJoin = 'round';
             overcontext.strokeStyle = SHAPE.color;
             overcontext.lineWidth = SHAPE.linewidth * SCALE;
-            overcontext.lineTo(x,y);
+            overcontext.lineTo(mouse.x,mouse.y);
             overcontext.stroke();
           }
   };
@@ -115,15 +118,36 @@ const Canvas = () => {
   }
 
   
+  const redraw =async()=>{
+    if(drawingcanvas){
+      const canvas = canvasRef.current;
+      const context = canvas.getContext('2d');
+      // createBoard(canvas);
+        const tempcanvas = document.createElement('canvas');
+        const tempcontext = tempcanvas.getContext('2d');
+
+        tempcanvas.width = CANVAS.width;
+        tempcanvas.height = CANVAS.height;
+        // CANVAS.x,CANVAS.y
+        tempcontext.putImageData(drawingcanvas,0,0);
+    context.setTransform(1, 0, 0, 1, 0, 0);
+        context.drawImage(tempcanvas,0,0)
+    }
+    
+  }
+
+  useEffect(()=>{
+    redraw();
+  },[drawingcanvas])
+
   const createBoard =(canvas)=>{
     const context = canvas.getContext('2d');
-      context.setTransform(1, 0, 0, 1, 0, 0);
-      clearBoard(context);
-      context.translate(mouse.movex,mouse.movey);
+    context.setTransform(1, 0, 0, 1, 0, 0);
+    clearBoard(context);
+      context.translate(CANVAS.x,CANVAS.y);
       context.fillStyle = CANVAS.background;
       context.fillRect(0,0,CANVAS.width * SCALE,CANVAS.height * SCALE);
-    //  redraw(context)
-  
+      // drawingcanvas && context.putImageData(drawingcanvas,0,0);
   }
 
   const draw =()=>{
@@ -140,6 +164,8 @@ const Canvas = () => {
           canvas.beginPath()//important else it will think every drawn line as one.
           canvas.lineWidth = linewidth * SCALE;
           canvas.strokeStyle = color;
+          canvas.lineCap = 'round';
+          canvas.lineJoin = 'round';
           canvas.moveTo(prev[0].x,prev[0])
           for(let i=0; i<prev.length; i++){
             canvas.lineTo(prev[i].x * SCALE,prev[i].y * SCALE);
@@ -147,9 +173,10 @@ const Canvas = () => {
           }
           canvas.closePath();
         }
+        
       }
     })
-
+    // SaveDrawing()
     // Object.entries(SHAPE.store).forEach((element) => {
       
     //   //  = element[1];
@@ -158,56 +185,50 @@ const Canvas = () => {
     // });
   }
 
-  const redraw =async(img)=>{
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    createBoard(canvas)
-      ctx.putImageData(img,0,0);
-  }
 
 
   useEffect(()=>{
-    draw();
+    draw()
+    if(drawingcanvas){
+    SaveDrawing()
+
+    }
   },[PAGE]);
 
   useEffect(()=>{
     const canvas = canvasRef.current;
     const overcanvas = overCanvasRef.current;
-    // const ctx = canvas.getContext('2d');
-    // const overctx = overcanvas.getContext('2d');
 
 
     canvas.height = window.innerHeight;
     canvas.width = window.innerWidth;
     overcanvas.height = window.innerHeight;
     overcanvas.width = window.innerWidth;
+    createBoard(canvasRef.current);
 
     const initialize =async()=>{
-      let name = localStorage.getItem('name');
+      let name = localStorage.getItem('whiteboard');
       if(!name){
         name = 'default';
-        localStorage.setItem('name',name);
+        localStorage.setItem('whiteboard',name);
         addNode(name);
       }else{
-        const {page} = await getoneNode(name);
-        let data = page;
-        // data = decodeURIComponent(page);
-        // data = JSON.parse(data);
-        const { drawing, canvasData, shapeData } = data;
-        redraw(drawing);
-        useDispatch(addcanvas(canvasData));
-        useDispatch(addshape(shapeData));
+        const Data = await getoneNode(name);
+        if(Data){
+          let data = Data.page;
+          // data = decodeURIComponent(page);
+          // data = JSON.parse(data);
+          const { drawing, canvasData, shapeData } = data;
+          setdrawing(drawing);
+          dispatch(addcanvas(canvasData));
+          dispatch(addshape(shapeData));
+          createBoard(canvasRef.current)
+        }
+        
       }
     }
 
     initialize();
-
-    // let name = CANVAS.name ;
-    // if(!name){
-    //   localStorage.setItem('name','default');
-    //   name = 'default';
-    // }
-    // addNode(name)
 
   },[])
 
@@ -219,7 +240,7 @@ const Canvas = () => {
     overcontext.setTransform(1, 0, 0, 1, 0, 0);
     overcontext.clearRect(0,0,window.innerWidth,window.innerHeight)
 
-    overcontext.translate(mouse.movex,mouse.movey);
+    overcontext.translate(CANVAS.x,CANVAS.y);
       const move_elem = moveref.current;
       move_elem.style.height = `${0}px`;
       move_elem.style.width = `${0}px`;
@@ -236,8 +257,8 @@ const Canvas = () => {
         const {border} = SHAPE.select;
         move_elem.style.height = `${border.h * SCALE}px`;
         move_elem.style.width = `${border.w * SCALE}px`;
-        move_elem.style.top = `${(border.y * SCALE) + mouse.movey }px`;
-        move_elem.style.left = `${(border.x * SCALE) + mouse.movex }px`;
+        move_elem.style.top = `${(border.y * SCALE) + CANVAS.y }px`;
+        move_elem.style.left = `${(border.x * SCALE) + CANVAS.x }px`;
   
         const { shape, linewidth, color, prev, id} = SELECTED;
           if(shape === 'line'){
@@ -272,7 +293,7 @@ const Canvas = () => {
     },[SELECTED])
 
   useEffect(()=>{
-    draw();
+    draw()
   },[SCALE,hold])
 
   useEffect(()=>{
@@ -294,7 +315,6 @@ const Canvas = () => {
           {
             if(freedraw){
               DrawLine();
-
             }
           }
         break;
@@ -302,14 +322,15 @@ const Canvas = () => {
         case 1:
           if(hold && SHAPE.select){
             dispatch(updateLine({i:e.movementX,j:e.movementY}));
-            overCanvasredraw();
+            // overCanvasredraw();
           }
         break;
 
         case 2:
           if(canvasmove){
-            dispatch(updatemove({x:e.movementX,y:e.movementY}));
+            dispatch(move({x:e.movementX,y:e.movementY}));
             createBoard(canvasRef.current);
+            // redraw();
           }
         break;
       }
@@ -319,11 +340,13 @@ const Canvas = () => {
       switch(MODE){
         case 0:
           {
-            let x = (mouse.x-  mouse.movex ) /SCALE , y = (mouse.y- mouse.movey)/SCALE  ;
+            overCanvasredraw()
+            let x = (mouse.x-  CANVAS.x ) /SCALE , y = (mouse.y- CANVAS.y)/SCALE  ;
             dispatch(addLine({x,y}));
             setdraw(true);
-            const overcanvas = overCanvasRef.current;
-            const overcontext = overcanvas.getContext('2d');
+            // draw()
+            const canvas = canvasRef.current;
+            const overcontext = canvas.getContext('2d');
             overcontext.beginPath();
             overcontext.lineCap = 'round';
             overcontext.lineJoin = 'round';
@@ -336,15 +359,21 @@ const Canvas = () => {
 
         case 1:
           {
-            let x = (mouse.x - mouse.movex) / SCALE;
-            let y = (mouse.y - mouse.movey) / SCALE;
+            overCanvasredraw()
+
+            let x = (mouse.x - CANVAS.x ) / SCALE;
+            let y = (mouse.y - CANVAS.y ) / SCALE;
             dispatch(select({x, y}));
+            draw();
             sethold(prevstate=>!prevstate);
+
           }
         break;
 
         case 2:
+          overCanvasredraw()
           setmoving(true);
+          // redraw()
         break;
       }
     }
@@ -358,23 +387,29 @@ const Canvas = () => {
           }
           setdraw(false);
           dispatch(endLine());
-          draw();
 
           const overcanvas = overCanvasRef.current;
           const overcontext = overcanvas.getContext('2d');
+          overcontext.closePath();
           clearBoard(overcontext);
-         SaveDrawing()
-          // createBoard(canvas);
+          draw();
+          SaveDrawing()
         break;
 
         case 1:
           {
             sethold(false);
+            if(hold){
+              draw();
+          SaveDrawing()
+
+            }
           }
         break;
 
         case 2:
           setmoving(false);
+          canvasmove && draw()
         break;
       }
     }
@@ -387,7 +422,7 @@ const Canvas = () => {
     Page.removeEventListener('mousedown',handledown);
     window.removeEventListener('mouseup',handleup);
     }
-  },[MODE,SCALE,canvasmove,overCanvasredraw,draw])
+  },[MODE,SCALE,canvasmove,overCanvasredraw,draw,redraw])
 
   return( <DRAWING_PAGE ref={pageRef} >
     <OVER_CANVAS ref={overCanvasRef}/>
