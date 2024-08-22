@@ -4,15 +4,16 @@ const {
     DeleteUser,
     ChangePassword,
     ForgotPassword
-} = require('../Controller/User.js')
+} = require('./controller')
 
 const express = require('express');
 const router = express.Router();
 
 router.post('/login', LoginUser);
 router.post('/register', Register);
-router.delete('/remove/:id', DeleteUser);
-router.put('/change/:id', ChangePassword);
-router.post('/forgot', ForgotPassword);
+router.post('/remove', DeleteUser);
+//used post instead of delete as delete always does not return body 
+router.put('/changepass', ChangePassword);
+router.post('/forgotpass', ForgotPassword);
 
 module.exports = router;

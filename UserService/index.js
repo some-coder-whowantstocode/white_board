@@ -1,13 +1,13 @@
-require('express-async-errors');
 require('dotenv').config();
 const express = require('express');
+require('express-async-errors');
 const app = express();
 const bodyParser = require('body-parser');
 const http = require('http');
 
-const userrouter = require('./Routes/User.js');
-const connectDB = require('./DB/mongodbconnection.js');
-const errorhandler = require('./Middleware/errorhandler.js');
+const userrouter = require('./routes.js');
+const connectDB = require('./DB.js');
+const errorhandler = require('./ErrorHandler/errorhandler.js');
 
 app.use(bodyParser.json());
 app.use('/user', userrouter);

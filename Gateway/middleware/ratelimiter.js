@@ -1,4 +1,3 @@
-const geoip = require('geoip-lite');
 
 const Ratelimiter = (clients,bucketduration,bucketlimit)=>{
     return async function(req,res,next){

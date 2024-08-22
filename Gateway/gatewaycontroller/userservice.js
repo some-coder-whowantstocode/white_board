@@ -1,6 +1,5 @@
 const createError = require('http-errors');
 
-
 const userRegisterchecker = (req,res,next) =>{
     const { body: { name, email, password } = {} } = req;
 

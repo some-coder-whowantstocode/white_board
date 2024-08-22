@@ -1,4 +1,5 @@
 const express = require("express"); 
+require('express-async-errors')
 const morgan = require("morgan"); 
 require("dotenv").config(); 
 const cors = require('cors');
@@ -6,7 +7,7 @@ const cors = require('cors');
 const { Filter } = require("./middleware/filter");
 const Ratelimiter = require("./middleware/ratelimiter");
 const { ErrorHandler } = require("./middleware/Errorhandler");
-const UserRouter = require('./Routes/user');
+const { userServiceProxy } = require("./proxy/userserviceproxy");
 
 const app = express(); 
 
@@ -15,7 +16,7 @@ const { PORT } = process.env;
 
 
 var corsOptions = {
-    origin: "http://localhost:1100",
+    origin: "http://localhost:5173",
     optionsSuccessStatus: 200 
 }
 
@@ -31,7 +32,7 @@ app.use(Ratelimiter(clients,bucketduration,bucketlimit));
 
 app.use(morgan("dev")); 
 
-app.use( '/user',UserRouter); 
+app.use( '/user',userServiceProxy); 
 
 app.use(ErrorHandler)
 

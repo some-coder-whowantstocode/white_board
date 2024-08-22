@@ -5,5 +5,6 @@ module.exports.ErrorHandler =(error,req,res,next)=>{
             err:error.message
         });
     }
+    next();
   
 }

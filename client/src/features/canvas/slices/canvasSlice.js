@@ -9,7 +9,7 @@ export const canvasSlice = createSlice({
         scale:1,
         height:window.innerHeight,
         width:window.innerWidth,
-        maxscale:2,
+        maxscale:Number.MAX_SAFE_INTEGER,
         minscale:0.2,
         scaleunit:0.1,
         background:'white',
