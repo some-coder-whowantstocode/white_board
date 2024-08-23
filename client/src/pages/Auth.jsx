@@ -11,6 +11,7 @@ import Authblock from '../features/authentication/components/Authblock';
 import { useauth } from '../features/authentication/context/authContext';
 import logo from '../assets/white board logo.png'
 import { pagelocation } from '../assets/pagesheet';
+import Popups from '../features/popup/components/Popups';
 
 const Auth = () => {
     const navigate = useNavigate();
@@ -19,6 +20,7 @@ const Auth = () => {
 
 return (
     <Authpage >
+        <Popups/>
         <Auth_logo onClick={()=>navigate(pagelocation.canvas)}>
             <img src={logo} alt="" />
             <span>name</span>

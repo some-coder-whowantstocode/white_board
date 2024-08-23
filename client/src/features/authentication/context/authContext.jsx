@@ -4,13 +4,7 @@ const authContext = createContext(null);
 
 export const AuthProvider =({children})=>{
 
-    const [ show, setshow ] = useState('login');
-    
-
-    const isauthenticated =()=>{
-        // i will send for login then i will store the token in server side and make a custom token using clients id and user agent then return it to client if it matches the client then i will allow user to access i will not send the token to user
-        
-    }
+    const [ show, setshow ] = useState('signin');
 
     const AUTHDATA = [
         {
@@ -19,7 +13,7 @@ export const AuthProvider =({children})=>{
             instruction:'or use your email password',
             inputs:['email','password'],
             btntext:'SIGN IN',
-            name:'login',
+            name:'signin',
             alternative:{
                 head:'Hello Friend!',
                 instruction:'Register with your personal details to use all of site features'

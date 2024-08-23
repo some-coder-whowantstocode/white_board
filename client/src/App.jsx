@@ -4,6 +4,7 @@ import Controller from './features/canvas/components/Controller.jsx'
 import { CanvasProvider } from './features/canvas/context/canvasProvider.jsx';
 import Filespace from './pages/Filespace.jsx';
 import { FileProvider } from './features/filesystem/context/FileContext.jsx';
+import { AuthProvider } from './features/authentication/context/authContext.jsx';
 import {
   BrowserRouter as Router,
   Route,
@@ -40,7 +41,9 @@ function App() {
       <Route 
       path={`/${pagelocation.auth}`} 
       element={
-        <Auth/>
+        <AuthProvider>
+          <Auth/>
+        </AuthProvider>
       }>
       </Route>
 

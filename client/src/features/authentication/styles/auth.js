@@ -41,7 +41,7 @@ const Styledbackground = styled.div`
     background-color: #7724e2;
     z-index: 1;
     ${
-        props=> props.show === 'login' ?
+        props=> props.show === 'signin' ?
 
         css`
         border-radius: 30% 0 0 30%;
