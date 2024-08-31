@@ -13,6 +13,7 @@ import { drawMode, update, updatemove } from "../features/canvas/slices/cursorSl
 import { downscale, move, addcanvas, upscale } from "../features/canvas/slices/canvasSlice.js";
 import { addLine, endLine, select, addshape, updateLine } from "../features/canvas/slices/shapesSlice.js";
 import { PiListDashesFill } from "react-icons/pi";
+import { userData } from "../features/authentication/slices/authSlice.js";
 
 const DRAWING_PAGE = styled.div`
   height: 100%;
@@ -72,6 +73,8 @@ const Canvas = () => {
   const observer = new ResizeObserver(()=>{
     const elem = moveref.current;
   })
+
+  
 
 
   const SaveDrawing =()=>{
@@ -229,6 +232,7 @@ const Canvas = () => {
     }
 
     initialize();
+    dispatch(userData())
 
   },[])
 

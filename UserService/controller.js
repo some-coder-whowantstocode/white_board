@@ -14,6 +14,7 @@ const User  = require('./model.js');
 
 const sendmail = require('./services/Mail.js');
 const { passwordchecker } = require('./Middleware/checkpassword.js');
+const { hashpassword } = require('./services/hashpassword.js');
 
 const Register = async(req, res, next) => {
     const { name, email, password } = req.body;
@@ -51,14 +52,20 @@ const Register = async(req, res, next) => {
                 { expiresIn: 3600 },
                 (err, token) => {
                   if (err) throw err;
-                  res.json({
-                    token,
+                  res.cookie('token', token, {
+                    // secure: true, 
+                    httpOnly: true, 
+                    sameSite: "lax" ,
+                    expires: persist ? new Date(Date.now() + 60 * 60 * 1000) : 0,
+                  })
+  
+                  res.send({
                     user: {
-                      id: user.id,
                       name: user.name,
-                      email: user.email
-                    }
-                  });
+                      email:user.email
+                    },
+                    msg:"successfully signed up."
+                  })
                 }
               );
             });
@@ -76,41 +83,55 @@ const Register = async(req, res, next) => {
     
   }
 
-const LoginUser =(req, res) => {
-    const { email, password } = req.body;
+const LoginUser =(req, res, next) => {
+    const { email, password, persist } = req.body;
   
     if (!email || !password) {
-      return res.status(400).json({ msg: 'Please enter all fields' });
+      throw new BadRequest( 'Please enter all fields' );
     }
   
     User.findOne({ email })
       .then(user => {
-        if (!user) return res.status(400).json({ msg: 'User does not exist' });
-  
+        if (!user) {
+          next(new UserNotFound( 'user does not exist.' ))
+          return;
+        }
         passwordchecker( password, user.password)
           .then(isMatch => {
-            if (!isMatch) return res.status(400).json({ msg: 'Invalid credentials' });
+            if (!isMatch){
+              next(new BadRequest( 'Invalid credentials' ));
+              return;
+            } 
   
             jwt.sign(
               { id: user.id },
               process.env.JWT_SECRET,
               { expiresIn: 3600 },
               (err, token) => {
-                if (err) throw err;
-                res.json({
-                  token,
+                if (err) next(err);
+                console.log(token)
+
+                res.cookie('token', token, {
+                  // secure: true, 
+                  httpOnly: true, 
+                  sameSite: "lax" ,
+                  expires: persist ? new Date(Date.now() + 60 * 60 * 1000) : 0,
+                })
+
+                res.send({
                   user: {
-                    id: user.id,
                     name: user.name,
-                    email: user.email
-                  }
-                });
+                    email:user.email
+                  },
+                  msg:"successfully logged in."
+                })
               }
             )
           })
 
           .catch((err)=>{
-            res.send( 'invalid password.')
+            err.message = "something went wrong with server."
+            next(err);
           })
       })
   }
@@ -189,11 +210,11 @@ const ChangePassword = async(req, res, next) => {
 
   }
 
-const ForgotPassword = (req, res) => {
+const ForgotPassword = async(req, res) => {
     const { email } = req.body;
   
     if (!email) {
-      return res.status(400).json({ msg: 'Please enter an email' });
+      throw new BadRequest("Please enter an email")
     }
   
     User.findOne({ email })
@@ -241,10 +262,46 @@ const ForgotPassword = (req, res) => {
       });
   }
 
+const UpdateUser =async(req, res, next)=>{
+  const {name, email, password} = req.body;
+  const {token} = req.cookies;
+  if(!token){
+    throw new Unauthorized("Token expired."); 
+  }
+
+  const updateduser = {
+    name, email, password
+  }
+
+  if(password){
+    updateduser.password = await hashpassword(password);
+  }
+
+  jwt.verify(token,process.env.JWT_SECRET,(err,data)=>{
+    if(err){
+      next(new Unauthorized("Invalid token."));
+    }else{
+
+      User.findByIdAndUpdate(data.id,{...updateduser},{new:true})
+      .then((data)=>{
+        res.send({msg:'user updated',name:data.name,email:data.email})
+      })
+      .catch((err)=>{
+        next(err)
+        return;
+      });
+    }
+  })
+
+  
+  
+}
+
 module.exports = {
     Register,
     LoginUser,
     DeleteUser,
+    UpdateUser,
     ChangePassword,
     ForgotPassword
 }

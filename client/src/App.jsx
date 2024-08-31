@@ -12,6 +12,7 @@ import {
 } from 'react-router-dom';
 import {pagelocation} from './assets/pagesheet.js';
 import Auth from './pages/Auth.jsx';
+import User from './pages/User.jsx';
 
 function App() {
 
@@ -44,6 +45,13 @@ function App() {
         <AuthProvider>
           <Auth/>
         </AuthProvider>
+      }>
+      </Route>
+
+      <Route 
+      path={`/${pagelocation.user}`} 
+      element={
+          <User/>
       }>
       </Route>
 

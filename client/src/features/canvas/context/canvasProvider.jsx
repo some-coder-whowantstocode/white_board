@@ -13,6 +13,7 @@ import { clearshape, redo, undo } from "../slices/shapesSlice.js";
 const canvasContext = createContext(null);
 
 export const CanvasProvider =({children})=>{    
+    const AuthStatus = useSelector(state=>state.auth.authstatus)
     
     const dispatch = useDispatch();
 
@@ -125,7 +126,12 @@ export const CanvasProvider =({children})=>{
         {
             icon:IconBox.USER.icon,
             type:IconBox.USER.name,
-            func(){navigate(pagelocation.auth)},
+            func(){
+                AuthStatus ?
+                navigate(pagelocation.user)
+                :
+                navigate(pagelocation.auth);
+            },
         },
         {
             icon:IconBox.ADD.icon,

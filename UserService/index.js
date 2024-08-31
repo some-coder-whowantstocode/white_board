@@ -3,6 +3,7 @@ const express = require('express');
 require('express-async-errors');
 const app = express();
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 const http = require('http');
 
 const userrouter = require('./routes.js');
@@ -10,6 +11,7 @@ const connectDB = require('./DB.js');
 const errorhandler = require('./ErrorHandler/errorhandler.js');
 
 app.use(bodyParser.json());
+app.use(cookieParser())
 app.use('/user', userrouter);
 app.use(errorhandler)
 

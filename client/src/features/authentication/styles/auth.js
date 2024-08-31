@@ -141,6 +141,17 @@ span{
 }
 `
 
+const Rememberme = styled.div`
+display: flex;
+align-items: center;
+justify-content: center;
+margin: 0;
+p{
+    font-size: 16px;
+    font-weight: 400;
+}
+`
+
 export {
     Authpage,
     Authbox,
@@ -150,5 +161,6 @@ export {
     Auth_input,
     Auth_btn,
     Styledbackground,
-    Auth_logo
+    Auth_logo,
+    Rememberme
 }
