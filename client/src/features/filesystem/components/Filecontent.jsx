@@ -3,8 +3,8 @@ import styled from 'styled-components'
 import { IconBox } from '../../../assets/icons'
 import { removeNode } from '../../database/services/indexedDB'
 import { useFile } from '../context/FileContext'
-import { useNavigate } from 'react-router-dom'
 import { pagelocation } from '../../../assets/pagesheet.js'
+import { history } from '../../../App.jsx'
 
 
 const File = styled.div`
@@ -63,7 +63,6 @@ const File = styled.div`
 const Filecontent = ({data}) => {
 
     const {getFiles} = useFile();
-    const navigate = useNavigate();
 
     const deletefile = async()=>{
         try{
@@ -80,7 +79,7 @@ return (
     <File
     onClick={()=>{
         localStorage.setItem('whiteboard',data.name);
-        navigate(pagelocation.canvas)
+        history.navigate(pagelocation.canvas)
     }}
     >
         <img src={data.img} alt="" />

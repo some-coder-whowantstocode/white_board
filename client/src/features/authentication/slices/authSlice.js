@@ -5,27 +5,38 @@ const authSlice = createSlice({
     initialState:{
         rememberme:false,
         name:'auth',
-        authstatus:false
+        authstatus:false,
+        
     },
     reducers:{
         logIn(state,action){
-            const {name} = action.payload;
             if(state.rememberme){
-                localStorage.setItem(state.name,name);
+                localStorage.setItem(state.name,JSON.stringify(action.payload));
             }
-            sessionStorage.setItem(state.name,name);
+            sessionStorage.setItem(state.name,JSON.stringify(action.payload));
             state.authstatus = true;
         },
-        userData(state){
-            let name ;
-                name = localStorage.getItem(state.name);
-                name = name ? name : sessionStorage.getItem(state.name);
-                if(!name){
-                    state.authstatus = false;
-                }else{
-                    state.authstatus = true;
-                }
-            // return name;
+        isloggedin(state){
+            const {name} = state;
+            let pname, tname;
+            pname = localStorage.getItem(name);
+            tname = sessionStorage.getItem(name);
+            if(!pname && !tname){
+                state.authstatus = false;
+            }else if(pname && !tname){
+                sessionStorage.setItem(name,pname);
+                state.authstatus = true;
+            }else{
+                state.authstatus = true;
+            }
+        },
+        getuserData(state, payload){
+            // let data = sessionStorage.getItem(state.name);
+            // if(data){
+            //         data = JSON.parse(data);
+            //         return { ...state, ...data };;
+            //     }
+            //     return false;
         },
         logOut(state){
                 localStorage.removeItem(state.name);
@@ -38,6 +49,6 @@ const authSlice = createSlice({
     }
 })
 
-export const { userData, logIn, change_token_memory, logOut } = authSlice.actions;
+export const { getuserData, logIn, change_token_memory, logOut, isloggedin } = authSlice.actions;
 
 export default authSlice.reducer;

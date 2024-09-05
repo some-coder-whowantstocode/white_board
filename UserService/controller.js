@@ -1,12 +1,9 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const {ObjectId} = require('mongoose').mongo
-
 
 const {
   BadRequest,
   Unauthorized,
-  CustomErr,
   UserNotFound
 } = require('./ErrorHandler/index.js')
 
@@ -14,127 +11,90 @@ const User  = require('./model.js');
 
 const sendmail = require('./services/Mail.js');
 const { passwordchecker } = require('./Middleware/checkpassword.js');
-const { hashpassword } = require('./services/hashpassword.js');
 
 const Register = async(req, res, next) => {
-    const { name, email, password } = req.body;
+    const { name, email, password, persist } = req.body;
     //use bloom filter to check
     if (!name || !email || !password) {
     throw new BadRequest('Please provide all required');      
     }
 
-  
-    User.findOne({ email })
-      .then(async(user) => {
+    const user = await User.findOne({email});
         if (user){
       next(new BadRequest('User already exists'))
       return;
         } 
         
-    await sendmail('register',"are you this man",email)
-    .then(()=>{
+
+      const salt = await bcrypt.genSalt(10);
+      const hash = await bcrypt.hash(password,salt);
+
+      const date = new Date();
+      const verifycodeexpiry = new Date(date.getHours() + 12);
+      const verifycode = await hashpassword(Math.floor(100000 + Math.random() * 900000).toString()) ;
+
       const newUser = new User({
         name,
         email,
-        password
+        password: hash,
+        verifycode,
+        verifycodeexpiry
       });
 
+      await newUser.save();
 
-      bcrypt.genSalt(10, (err,salt) => {
-        bcrypt.hash(newUser.password, salt, (err, hash) => {
-          if (err) throw err;
-          newUser.password = hash;
-          newUser.save()
-            .then(user => {
-              jwt.sign(
-                { id: user.id },
-                process.env.JWT_SECRET,
-                { expiresIn: 3600 },
-                (err, token) => {
-                  if (err) throw err;
-                  res.cookie('token', token, {
-                    // secure: true, 
-                    httpOnly: true, 
-                    sameSite: "lax" ,
-                    expires: persist ? new Date(Date.now() + 60 * 60 * 1000) : 0,
-                  })
-  
-                  res.send({
-                    user: {
-                      name: user.name,
-                      email:user.email
-                    },
-                    msg:"successfully signed up."
-                  })
-                }
-              );
-            });
-        });
-      });
-    })
-    
-    .catch(err=>{
-      next(new BadRequest('Please provide a valid email'))
-    })
+      const token = await jwt.sign({ id: newUser.id }, process.env.JWT_SECRET, { expiresIn: 3600 });
+
+    sendmail('register',"are you this man",email)
+
+
+      res.cookie('token', token, {
+        // secure: true, 
+        httpOnly: true, 
+        sameSite: "lax" ,
+        expires:  persist ? new Date(Date.now() + 60 * 60 * 1000) : 0,
+      })
+
+      res.send({
+        user: {
+          name: user.name,
+          email:user.email
+        },
+        msg:"successfully signed up."
+      })
         
-    
-      });
- 
-    
   }
 
-const LoginUser =(req, res, next) => {
+const LoginUser =async(req, res, next) => {
     const { email, password, persist } = req.body;
-  
     if (!email || !password) {
       throw new BadRequest( 'Please enter all fields' );
     }
   
-    User.findOne({ email })
-      .then(user => {
-        if (!user) {
-          next(new UserNotFound( 'user does not exist.' ))
-          return;
-        }
-        passwordchecker( password, user.password)
-          .then(isMatch => {
-            if (!isMatch){
-              next(new BadRequest( 'Invalid credentials' ));
-              return;
-            } 
-  
-            jwt.sign(
-              { id: user.id },
-              process.env.JWT_SECRET,
-              { expiresIn: 3600 },
-              (err, token) => {
-                if (err) next(err);
-                console.log(token)
+    const user = await User.findOne({ email });
+    if (!user) {
+      throw new UserNotFound( 'user does not exist.' );
+    }
+    const isMatch = await passwordchecker( password, user.password);
+    if (!isMatch){
+      throw new BadRequest( 'Invalid credentials' );
+    } 
+    const token = await jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: 3600 });
+    res.cookie('token', token, {
+      // secure: true, 
+      httpOnly: true, 
+      sameSite: "lax" ,
+      expires:  persist  ? new Date(Date.now() + 60 * 60 * 1000) : 0,
+    })
 
-                res.cookie('token', token, {
-                  // secure: true, 
-                  httpOnly: true, 
-                  sameSite: "lax" ,
-                  expires: persist ? new Date(Date.now() + 60 * 60 * 1000) : 0,
-                })
-
-                res.send({
-                  user: {
-                    name: user.name,
-                    email:user.email
-                  },
-                  msg:"successfully logged in."
-                })
+    res.send({
+      user: {
+        name: user.name,
+        email:user.email
+      },
+      msg:"successfully logged in."
+    })
               }
-            )
-          })
-
-          .catch((err)=>{
-            err.message = "something went wrong with server."
-            next(err);
-          })
-      })
-  }
 
 const DeleteUser = async(req, res,next) => {
     const {email, pass} = req.body;
@@ -149,13 +109,8 @@ const DeleteUser = async(req, res,next) => {
 
     const authentic = await passwordchecker(pass,password.password);
     if(authentic){
-          User.deleteOne({email})
-          .then(() => {
-            res.json({ success: true })
-          })
-          .catch(err =>{
-            return next(err);
-            });
+      await User.deleteOne({email})
+      res.json({ success: true })
     }else{
     throw new Unauthorized("invalid password");      
     }
@@ -169,44 +124,22 @@ const ChangePassword = async(req, res, next) => {
     if (!oldpassword || !newpassword || !email) {
       throw new BadRequest('Please provide both old, new password and email.')
     }
-    User.findOne({email}).select('password')
-    .then(async({_id, password})=>{
+    const { _id, password } = await User.findOne({email}).select('password');
 
       if(!password){
         throw new UserNotFound("No such email exists.")
       }
       const authentic = await passwordchecker(password, oldpassword)
       if(!authentic){
-        next( new BadRequest("invalid password."))
-        return;
+        throw new BadRequest("invalid password.");
       }
 
-      bcrypt.genSalt(10, (err,salt) => {
-        if (err){
-          next(err);
-          return;
-        };
-          bcrypt.hash(newpassword, salt, (err, hash) => {
-            if (err){
-              next(err);
-              return;
-            };
-
-              User.findByIdAndUpdate(_id,{password:hash},{new:true})
-              .then(()=>{
-                res.send({msg:'password updated'})
-              })
-              .catch((err)=>next(err));
-
-          });
-        });
+      const salt = await bcrypt.genSalt(10);
+      const hash = await bcrypt.hash(newpassword, salt);
       
-    })
+      await User.findByIdAndUpdate(_id,{password:hash},{new:true});
 
-    .catch((err)=>{
-      next(err);
-    })
-
+      res.send({msg:'password updated'});
 
   }
 
@@ -217,49 +150,16 @@ const ForgotPassword = async(req, res) => {
       throw new BadRequest("Please enter an email")
     }
   
-    User.findOne({ email })
-      .then(user => {
+    const user = await User.findOne({ email })
         if (!user) {
           throw new BadRequest("Email is not registerd.")
         };
   
   
-            let link = "http://" + req.headers.host + "/api/users/reset/" + user.resetPasswordToken;
-      sendmail('forgotpassword',link,email)
-      .then(()=>{
-        res.status(200).json({msg: 'A reset email has been sent to ' + user.email + '.'});
-        
-      })
-      .catch(err => next(err));
-
-            // const mailOptions = {
-            //   to: user.email,
-            //   from: process.env.FROM_EMAIL,
-            //   subject: "Password change request",
-            //   text: `Hi ${user.name} \n 
-            //   Please click on the following link ${link} to reset your password. \n\n 
-            //   If you did not request this, please ignore this email and your password will remain unchanged.\n`
-            // };
-  
-            // let transporter = nodemailer.createTransport({
-            //   host: 'smtp.gmail.com',
-            //   port: 465,
-            //   secure: true,
-            //   auth: {
-            //     user: process.env.EMAIL_USER,
-            //     pass: process.env.EMAIL_PASSWORD,
-            //   },
-            // });
-  
-            // transporter.sendMail(mailOptions, (error, info) => {
-            //   if (error) {
-            //     console.log(error);
-            //   } else {
-            //     console.log('Email sent: ' + info.response);
-            //   }
-            // });
-  
-      });
+      let link = "http://" + req.headers.host + "/api/users/reset/" + user.resetPasswordToken;
+      await sendmail('forgotpassword',link,email)
+      res.status(200).json({msg: 'A reset email has been sent to ' + user.email + '.'});
+          
   }
 
 const UpdateUser =async(req, res, next)=>{
@@ -274,27 +174,19 @@ const UpdateUser =async(req, res, next)=>{
   }
 
   if(password){
-    updateduser.password = await hashpassword(password);
+    const salt = await bcrypt.genSalt(10);
+    const hash = await bcrypt.hash(password, salt);
+    updateduser.password = hash;
   }
 
-  jwt.verify(token,process.env.JWT_SECRET,(err,data)=>{
-    if(err){
-      next(new Unauthorized("Invalid token."));
+  const isverified = await jwt.verify(token,process.env.JWT_SECRET)
+    if(!isverified){
+      throw new Unauthorized("Invalid token.");
     }else{
-
-      User.findByIdAndUpdate(data.id,{...updateduser},{new:true})
-      .then((data)=>{
-        res.send({msg:'user updated',name:data.name,email:data.email})
-      })
-      .catch((err)=>{
-        next(err)
-        return;
-      });
-    }
-  })
-
-  
-  
+      const user = await User.findByIdAndUpdate(data.id,{...updateduser},{new:true});
+        res.send({msg:'user updated',name:user.name,email:user.email})
+      
+    }  
 }
 
 module.exports = {

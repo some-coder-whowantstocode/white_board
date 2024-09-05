@@ -1,4 +1,5 @@
 import { openIndexedDB } from "./createDB";
+import {handler} from '../../../helper';
 
 
 const removeNode = async(id,refid)=>{
@@ -19,6 +20,7 @@ const removeNode = async(id,refid)=>{
 
     request.onerror = function() {
         console.log('Failed to delete data');
+        handler(500, "error while removing node");
     };
 }
 

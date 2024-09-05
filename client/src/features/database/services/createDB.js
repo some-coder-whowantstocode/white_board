@@ -29,9 +29,7 @@ const openIndexedDB = ()=>{
         resolve(request.result);
     }
     })
-    .catch(err=>{
-        console.log(err);
-    })
+   
     
 }
 

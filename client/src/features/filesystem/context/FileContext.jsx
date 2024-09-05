@@ -1,8 +1,8 @@
 import { createContext, useContext, useState } from "react";
 import { IconBox } from "../../../assets/icons";
 import { getallFiles } from "../../database/services/indexedDB";
-import { useNavigate } from "react-router-dom";
 import { pagelocation } from '../../../assets/pagesheet';
+import { history } from "../../../App";
 
 const fileContext = createContext(null);
 
@@ -28,13 +28,12 @@ export const FileProvider =({children})=>{
         setFiles(thumbnails);
     }
 
-    const navigate = useNavigate();
 
     const FILE_CONTROL = [
         {
             name:IconBox.HOME.name,
             icon:IconBox.HOME.icon,
-            func(){navigate(pagelocation.canvas)}
+            func(){history.navigate(pagelocation.canvas)}
         },
         {
             name:IconBox.FOLDERS.name,

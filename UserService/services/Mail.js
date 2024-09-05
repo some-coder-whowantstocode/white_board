@@ -1,4 +1,5 @@
 const nodemailer = require("nodemailer");
+const { BadRequest } = require("../ErrorHandler");
 
 // const transporter = nodemailer.createTransport({
 //     service: process.env.MAIL_SERVICE,
@@ -40,7 +41,8 @@ const sendmail=(sub,text,email)=> {
     
   transporter.sendMail(mailOptions,function(err,info){
   if(err){
-    reject(err);
+    // reject( new BadRequest("The email is invalid."));
+    console.log(err);
   }else{   
     resolve(true);
     console.log("Message sent: %s", info);

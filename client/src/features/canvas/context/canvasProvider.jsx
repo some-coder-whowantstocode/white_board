@@ -2,11 +2,11 @@ import { createContext, useContext, useRef, useState } from "react";
 
 import { addNode, updateNode } from '../../database/services/indexedDB.js'
 import { IconBox } from "../../../assets/icons.js";
-import { useNavigate } from "react-router-dom";
 import { pagelocation } from '../../../assets/pagesheet.js';
 import { useDispatch, useSelector } from "react-redux";
 import { downscale, move, upscale, changeMode, clearcanvas } from "../slices/canvasSlice.js";
 import { clearshape, redo, undo } from "../slices/shapesSlice.js";
+import { history } from "../../../App.jsx";
 
 
 
@@ -17,7 +17,6 @@ export const CanvasProvider =({children})=>{
     
     const dispatch = useDispatch();
 
-    const navigate = useNavigate();
 
     const MODES = {
         Draw :0,
@@ -118,7 +117,7 @@ export const CanvasProvider =({children})=>{
             icon:IconBox.FOLDERS.icon,
             type:IconBox.FOLDERS.name,
             func(){
-                navigate(pagelocation.filespace)
+                history.navigate(pagelocation.filespace)
                 dispatch(clearshape());
                 dispatch(clearcanvas());
             },
@@ -128,9 +127,9 @@ export const CanvasProvider =({children})=>{
             type:IconBox.USER.name,
             func(){
                 AuthStatus ?
-                navigate(pagelocation.user)
+                history.navigate(pagelocation.user)
                 :
-                navigate(pagelocation.auth);
+                history.navigate(pagelocation.auth);
             },
         },
         {

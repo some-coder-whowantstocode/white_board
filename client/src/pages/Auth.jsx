@@ -1,5 +1,4 @@
 import React from 'react'
-import { useNavigate } from 'react-router-dom';
 
 import { 
     Authpage, 
@@ -12,16 +11,18 @@ import { useauth } from '../features/authentication/context/authContext';
 import logo from '../assets/white board logo.png'
 import { pagelocation } from '../assets/pagesheet';
 import Popups from '../features/popup/components/Popups';
+import { history } from '../App';
+import Processings from '../features/processes/components/processings';
 
 const Auth = () => {
-    const navigate = useNavigate();
     
     const {AUTHDATA, show} = useauth();
 
 return (
     <Authpage >
         <Popups/>
-        <Auth_logo onClick={()=>navigate(pagelocation.canvas)}>
+        <Processings/>
+        <Auth_logo onClick={()=>history.navigate(pagelocation.canvas)}>
             <img src={logo} alt="" />
             <span>name</span>
         </Auth_logo>

@@ -2,25 +2,26 @@ import React, { useEffect, useRef, useState } from 'react'
 
 import { USER_DETAILS, USER_PAGE, LEFT, RIGHT, User_btn } from '../features/user/styles/user'
 import { pagelocation } from '../assets/pagesheet'
-import { useNavigate } from 'react-router-dom'
 import { Auth_logo } from '../features/authentication/styles/auth'
 import logo from '../assets/white board logo.png'
 import Popups from '../features/popup/components/Popups'
 import { addpopup } from '../features/popup/slices/popupSlice'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import axios from 'axios'
-import { logOut } from '../features/authentication/slices/authSlice'
+import { isloggedin, logOut, getuserData } from '../features/authentication/slices/authSlice'
+import { handler } from '../helper'
+import { history } from '../App'
 
 
 
 const User = () => {
 
-  const navigate = useNavigate();
-  const [userName, setuserName] = useState('random');
-  const [useremail, setuseremail] = useState('random@gmail.com')
+  const [userName, setuserName] = useState('');
+  const [useremail, setuseremail] = useState('')
   const [password, setpassword] = useState('')
-  const [original, changeoriginal] = useState({name:'random',email:"random@gmail.com",password:""});
+  const [original, changeoriginal] = useState({name:'',email:"",password:""});
   const [updateneeded, setupdateneed] = useState(false);
+  const AUTH = useSelector(state=>state.auth);
 
   const dispatch = useDispatch();
 
@@ -33,6 +34,27 @@ const User = () => {
   },[userName, useremail, password, original])
 
   useEffect(()=>{
+    if(!dispatch(isloggedin())){
+      history.navigate(pagelocation.auth);
+    }else{
+      (async()=>{
+        const data= sessionStorage.getItem(AUTH.name);
+        if(!data){
+          handler(401);
+          return;
+        }
+        const {name, email} = JSON.parse(data);
+        if(!name || !email){
+          handler(401);
+          return;
+        }
+        setuserName(name);
+        setuseremail(email);
+        changeoriginal({name,email,password:""})
+      })()
+     
+    }
+    
     
   },[])
 
@@ -57,27 +79,17 @@ const User = () => {
         password:"",
         email:data.email
       })
-      dispatch(addpopup({msg: "user updated.", type:0}));
+      handler(200, "user updated")
     } catch (error) {
       console.log(error)
-      switch(error.status){
-        case 401 :
-          dispatch(addpopup({msg: "Token expired.", type:1}));
-          dispatch(logOut())
-          navigate(pagelocation.auth)
-        break;
-
-        default:
-          dispatch(addpopup({msg: "something went wrong.", type:1}));
-        break;
-      }
+      handler(error.status)      
     }
   }
 
   return (
     <USER_PAGE>
       <Popups/>
-      <Auth_logo onClick={()=>navigate(pagelocation.canvas)}>
+      <Auth_logo onClick={()=>history.navigate(pagelocation.canvas)}>
             <img src={logo} alt="" />
             <span>name</span>
         </Auth_logo>

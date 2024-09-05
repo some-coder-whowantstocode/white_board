@@ -13,9 +13,9 @@ import {
     Menu,
 } from "../styles/filenav";
 import { useFile } from "../context/FileContext";
-import { useNavigate } from "react-router-dom";
 import { pagelocation } from "../../../assets/pagesheet.js";
 import home from '../../../assets/white board logo.png'
+import { history } from "../../../App.jsx";
 
 const FileNav = () => {
     const { FILE_CONTROL, width, setwidth, width_limit, BurgerMenu, selected } =
@@ -66,7 +66,6 @@ const FileNav = () => {
     };
     }, []);
 
-    const navigate = useNavigate();
 
     return (
     <NavBox>
@@ -86,7 +85,7 @@ const FileNav = () => {
             <App_logo 
             width={`${width === width_limit.logo}`}>
             <Logo
-            onClick={()=>navigate(pagelocation.canvas)}
+            onClick={()=>history.navigate(pagelocation.canvas)}
             >  
                 <img src={home} alt=""   />
             </Logo>

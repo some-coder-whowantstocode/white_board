@@ -4,15 +4,18 @@ import {
     Authbox_part, Auth_icons, Auth_instructions, Auth_input, Auth_btn, Rememberme
 } from '../styles/auth.js'
 import { useauth } from '../context/authContext.jsx'
-import { addpopup } from '../../popup/slices/popupSlice.js';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import { change_token_memory, logIn } from '../slices/authSlice.js';
-import { useNavigate } from 'react-router-dom';
 import { pagelocation } from '../../../assets/pagesheet.js';
+import { history } from  '../../../App.jsx';
+import { handler } from '../../../helper.js';
+import { popexternalProcess, pushexternalProcess } from '../../processes/slices/processSlice.js';
+
 
 const Authblock = ({item}) => {
     const AUTH = useSelector(state=>state.auth)
+    const EXTERNAL_PROCESS = useSelector(state=>state.process.externalProcesses);
     const {show, setshow} = useauth();
     const inputdata = useRef({
         signin:{email:'', password:''},
@@ -28,25 +31,30 @@ const Authblock = ({item}) => {
         // {sample: /^.{6,12}$/, err: "The password length must be between 6 to 12 characters."}
     ],
     email:[
-        {sample: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/, err:"Please provide a valid email."}
+        {sample: /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/, err:"Please provide a valid email."}
     ],
     name:[
-        {sample: /^.{6,14}$/, err: "The password length must be between 6 to 12 characters."}
+        {sample: /^.{6,14}$/, err: "The name length must be between 6 to 12 characters."}
     ]
     }
 
     const dispatch = useDispatch();
-    const navigate = useNavigate();
+
+    useEffect(()=>{
+        inputdata.current = {
+            signin:{email:'', password:''},
+            signup:{name:'', email:'', password:''}}
+    },[show]);
+    
 
     const verify =()=>{
-        // dispatch(storetoken('token'))
         let allgood = true;
         Object.keys(inputdata.current[show]).map((i)=>{
             let val = inputdata.current[show][i];
             for(let j=0; j<Tests[i].length; j++){
                 const {sample, err} = Tests[i][j];
                 if(!sample.test(val)){
-                    dispatch(addpopup({msg:err, type:1}));
+                    handler(500,err)
                     allgood = false;
                     break;
                 }
@@ -57,8 +65,9 @@ const Authblock = ({item}) => {
     }
 
     const signIn =async()=>{
-        if(verify()){
+        if(verify() && !EXTERNAL_PROCESS){
             try{
+                dispatch(pushexternalProcess({msg:"singing in..."}))
                 const URL = `${import.meta.env.VITE_KEY_GATEWAY}${import.meta.env.VITE_KEY_USERSERVICE}${import.meta.env.VITE_KEY_USER_LOGIN}`;
                 const headers = {}
                 const body = {...inputdata.current[show],persist:AUTH.rememberme}
@@ -67,18 +76,22 @@ const Authblock = ({item}) => {
                     withCredentials: true 
                 });
                 dispatch(logIn(data.user));
-                dispatch(addpopup({msg:"successfully loggedin.", type:0}));
-                navigate(pagelocation.canvas)
+                handler(200,"successfully loggedin.")
+                history.navigate(pagelocation.user)
             }catch(err){
                 console.log(err)
-                dispatch(addpopup({msg: "something went wrong.", type:1}));
+                handler(err.status ,err?.response?.data?.err || err?.message || "something went wrong.")
+            }finally{
+                dispatch(popexternalProcess())
             }
         }
     }
 
     const signUp =async()=>{
-        if(verify()){
+        if(verify() && !EXTERNAL_PROCESS){
             try{
+                dispatch(pushexternalProcess({msg:"signing up..."}))
+
                 const URL = `${import.meta.env.VITE_KEY_GATEWAY}${import.meta.env.VITE_KEY_USERSERVICE}${import.meta.env.VITE_KEY_USER_REGISTER}`;
                 const headers = {}
                 const body = {...inputdata.current[show]}
@@ -87,10 +100,13 @@ const Authblock = ({item}) => {
                     withCredentials: true 
                 });
                 dispatch(logIn(data.user));
-                dispatch(addpopup({msg:"successfully loggedin.", type:0}));
-                navigate(pagelocation.canvas)
+                handler(200,"successfully loggedin.")
+                history.navigate(pagelocation.canvas)
             }catch(err){
-                dispatch(addpopup({msg:err.response.data.err || err.message || "something went wrong.", type:1}));
+                handler(err.status ,err?.response?.data?.err || err?.message || "something went wrong.")
+
+            }finally{
+                dispatch(popexternalProcess())
             }
         }
     }

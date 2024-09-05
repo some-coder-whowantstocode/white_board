@@ -6,21 +6,39 @@ import Filespace from './pages/Filespace.jsx';
 import { FileProvider } from './features/filesystem/context/FileContext.jsx';
 import { AuthProvider } from './features/authentication/context/authContext.jsx';
 import {
-  BrowserRouter as Router,
   Route,
-  Routes
+  Routes,
+  useNavigate
 } from 'react-router-dom';
 import {pagelocation} from './assets/pagesheet.js';
 import Auth from './pages/Auth.jsx';
 import User from './pages/User.jsx';
+import { useEffect } from 'react';
+
+
+export const history = {
+  navigater:null,
+  navigate:(path)=>{
+      if (history.navigater) {
+          history.navigater(path);
+      } else {
+        window.location.href = path;
+          console.error("Navigator is not set");
+      }
+  }
+};  
+
 
 function App() {
-
+    const nav = useNavigate();
+    useEffect(()=>{
+      history.navigater = nav;
+    },[nav])
   return (
-    <Router>
-      <Routes>
+      <Routes >
     
       <Route 
+      
       path={pagelocation.canvas}  
       element={ 
       <CanvasProvider>
@@ -56,7 +74,6 @@ function App() {
       </Route>
 
       </Routes>
-    </Router>
   )
 }
 

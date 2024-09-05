@@ -37,41 +37,53 @@ const addNode = async (name) => {
         });
     } catch (err) {
         console.error('Error at addNode', err);
-        throw err;
+        handler(500, "error while adding node");
     }
 };
 
 
 
 const updateNode = async(name, page,img)=>{
-    const db = await openIndexedDB();
-    const transanction = db.transaction('Folder','readwrite');
-    const store = transanction.objectStore('Folder');
-    const index = store.index('files');
-    const request = index.get([name])
-    request.onsuccess = ()=> {
-        const node = request.result;
-        if(!node){
-            addNode(name)
-        }
-        node.page = page;
-        const updateRequest = store.put(node);
-        updateRequest.onsuccess = () => {
-            const transaction2 = db.transaction('thumbnail','readwrite');
-            const store2 = transaction2.objectStore('thumbnail');
-            const index2 = store2.index('files');
-            const request2 = index2.get([name]);
-            request2.onsuccess = ()=>{
-                const thumbnail = request2.result;
-                thumbnail.img = img;
-                const updatereq = store2.put(thumbnail);
-
-                updatereq.onsuccess=(()=>{
-                    console.log('updated')
-                })
+    try {
+        const db = await openIndexedDB();
+        const transanction = db.transaction('Folder','readwrite');
+        const store = transanction.objectStore('Folder');
+        const index = store.index('files');
+        const request = index.get([name])
+        request.onsuccess = ()=> {
+            const node = request.result;
+            if(!node){
+                addNode(name)
+            }
+            node.page = page;
+            const updateRequest = store.put(node);
+            updateRequest.onsuccess = () => {
+                const transaction2 = db.transaction('thumbnail','readwrite');
+                const store2 = transaction2.objectStore('thumbnail');
+                const index2 = store2.index('files');
+                const request2 = index2.get([name]);
+                request2.onsuccess = ()=>{
+                    const thumbnail = request2.result;
+                    thumbnail.img = img;
+                    const updatereq = store2.put(thumbnail);
+    
+                    updatereq.onsuccess=(()=>{
+                        console.log('updated')
+                    })
+                }
+                request2.onerror =(err)=>{
+            
+                }
             }
         }
+        request.onerror =(err)=>{
+    
+        }
+    } catch (error) {
+        handler(500, "error while updating node");
+        
     }
+   
 }
 
 export{

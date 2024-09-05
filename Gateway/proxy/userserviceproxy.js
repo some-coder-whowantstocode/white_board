@@ -13,7 +13,6 @@ const userServiceProxy = async(req,res,next)=>{
             timeout:Number(process.env.TIMEOUT)
         };
 
-        console.log(options.headers)
         
         const proxyReq = http.request(options);
         proxyReq.on('response', (response) => {

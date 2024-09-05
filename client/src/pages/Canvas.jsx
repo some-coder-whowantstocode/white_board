@@ -13,7 +13,13 @@ import { drawMode, update, updatemove } from "../features/canvas/slices/cursorSl
 import { downscale, move, addcanvas, upscale } from "../features/canvas/slices/canvasSlice.js";
 import { addLine, endLine, select, addshape, updateLine } from "../features/canvas/slices/shapesSlice.js";
 import { PiListDashesFill } from "react-icons/pi";
-import { userData } from "../features/authentication/slices/authSlice.js";
+import { history } from "../App.jsx";
+import { useLocation } from "react-router-dom";
+import { isloggedin } from "../features/authentication/slices/authSlice.js";
+import Popups from "../features/popup/components/Popups.jsx";
+import { handler } from "../helper.js";
+import Processings from "../features/processes/components/processings.jsx";
+import { popinternalProcess, pushinternalProcess } from "../features/processes/slices/processSlice.js";
 
 const DRAWING_PAGE = styled.div`
   height: 100%;
@@ -57,8 +63,15 @@ const Canvas = () => {
   const SHAPE = useSelector((state)=>state.shape);
   const SELECTED = useSelector((state)=>state.shape.select);
   const PAGE = useSelector((state)=>state.shape.currentPage);
+  const INTERNAL_PROCESSES = useSelector((state)=>state.process.internalProcesses);
 
   const dispatch = useDispatch();
+  const navigate = useLocation();
+
+  
+  useEffect(() => {
+    history.navigater = navigate;
+}, [navigate]);
 
   const canvasRef = useRef(null);
   const pageRef = useRef(null);
@@ -77,27 +90,30 @@ const Canvas = () => {
   
 
 
-  const SaveDrawing =()=>{
-    const canvas = canvasRef.current;
-    const context = canvas.getContext('2d');
-    const {x, y, scale, height, width, background} = CANVAS;
-    const { store, size, color, currentPage, minpages, maxpages, pages } = SHAPE;
-    const canvasData = {x, y, scale, height, width, background};
-    const shapeData = { store, size, color, currentPage, minpages, maxpages, pages }
-    let imgData = context.getImageData(0,0,CANVAS.width ,CANVAS.height );
-    setdrawing(imgData);
-    const data = {
-      drawing:imgData,
-      canvasData,
-      shapeData
+  const SaveDrawing =async()=>{
+    try{
+     
+      const canvas = canvasRef.current;
+      const context = canvas.getContext('2d');
+      const {x, y, scale, height, width, background} = CANVAS;
+      const { store, size, color, currentPage, minpages, maxpages, pages } = SHAPE;
+      const canvasData = {x, y, scale, height, width, background};
+      const shapeData = { store, size, color, currentPage, minpages, maxpages, pages }
+      let imgData = context.getImageData(0,0,CANVAS.width ,CANVAS.height );
+      setdrawing(imgData);
+      const data = {
+        drawing:imgData,
+        canvasData,
+        shapeData
+      }
+      let file = data;
+      const img = canvas.toDataURL('image/png');
+      const name = localStorage.getItem('whiteboard');
+      await updateNode(name,file,img);
+    }catch(err){
+      console.log(err);
+      handler(500,"error occured while saving data");
     }
-    let file = data;
-    // file = JSON.stringify(file);
-    // file = encodeURIComponent(file);
-    const img = canvas.toDataURL('image/png');
-    const name = localStorage.getItem('whiteboard');
-    console.log(file)
-    updateNode(name,file,img);
   }
 
   const DrawLine = () => {
@@ -179,24 +195,27 @@ const Canvas = () => {
         
       }
     })
-    // SaveDrawing()
-    // Object.entries(SHAPE.store).forEach((element) => {
-      
-    //   //  = element[1];
-   
-    
-    // });
+  
   }
 
 
 
   useEffect(()=>{
     draw()
-    if(drawingcanvas){
-    SaveDrawing()
-
-    }
   },[PAGE]);
+
+
+  useEffect(()=>{
+    if(drawingcanvas){
+      const id = setInterval(() => {
+        SaveDrawing();
+      }, 1000 * 3);
+
+      return ()=>{
+        clearInterval(id);
+      }
+    }
+  },[drawingcanvas]);
 
   useEffect(()=>{
     const canvas = canvasRef.current;
@@ -219,20 +238,18 @@ const Canvas = () => {
         const Data = await getoneNode(name);
         if(Data){
           let data = Data.page;
-          // data = decodeURIComponent(page);
-          // data = JSON.parse(data);
           const { drawing, canvasData, shapeData } = data;
           setdrawing(drawing);
           dispatch(addcanvas(canvasData));
           dispatch(addshape(shapeData));
           createBoard(canvasRef.current)
+          dispatch(isloggedin());
         }
         
       }
     }
 
     initialize();
-    dispatch(userData())
 
   },[])
 
@@ -251,13 +268,8 @@ const Canvas = () => {
       move_elem.style.top = `${0}px`;
       move_elem.style.left = `${0}px`;
       if(SELECTED){
-  // const img = new Image();
-  // img.onload = () => {
-  //   // Draw the image onto the canvas
-  //   ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-  // };
   
-  // img.src = dataURL;
+  
         const {border} = SHAPE.select;
         move_elem.style.height = `${border.h * SCALE}px`;
         move_elem.style.width = `${border.w * SCALE}px`;
@@ -307,38 +319,7 @@ const Canvas = () => {
     const fps = 0;
     let counter = 0;
 
-    const handleMove =(e)=>{
-      if(counter < fps){
-        counter += 1;
-        return;
-      }
-      counter = 0;
-      dispatch(update({x:e.clientX,y:e.clientY}));
-      switch(MODE){
-        case 0:
-          {
-            if(freedraw){
-              DrawLine();
-            }
-          }
-        break;
-
-        case 1:
-          if(hold && SHAPE.select){
-            dispatch(updateLine({i:e.movementX,j:e.movementY}));
-            // overCanvasredraw();
-          }
-        break;
-
-        case 2:
-          if(canvasmove){
-            dispatch(move({x:e.movementX,y:e.movementY}));
-            createBoard(canvasRef.current);
-            // redraw();
-          }
-        break;
-      }
-    }
+    
 
     const handledown =()=>{
       switch(MODE){
@@ -397,7 +378,6 @@ const Canvas = () => {
           overcontext.closePath();
           clearBoard(overcontext);
           draw();
-          SaveDrawing()
         break;
 
         case 1:
@@ -405,7 +385,6 @@ const Canvas = () => {
             sethold(false);
             if(hold){
               draw();
-          SaveDrawing()
 
             }
           }
@@ -414,6 +393,39 @@ const Canvas = () => {
         case 2:
           setmoving(false);
           canvasmove && draw()
+        break;
+      }
+    }
+
+    const handleMove =(e)=>{
+      if(counter < fps){
+        counter += 1;
+        return;
+      }
+      counter = 0;
+      dispatch(update({x:e.clientX,y:e.clientY}));
+      switch(MODE){
+        case 0:
+          {
+            if(freedraw){
+              DrawLine();
+            }
+          }
+        break;
+
+        case 1:
+          if(hold && SHAPE.select){
+            dispatch(updateLine({i:e.movementX,j:e.movementY}));
+            // overCanvasredraw();
+          }
+        break;
+
+        case 2:
+          if(canvasmove){
+            dispatch(move({x:e.movementX,y:e.movementY}));
+            createBoard(canvasRef.current);
+            // redraw();
+          }
         break;
       }
     }
@@ -429,6 +441,8 @@ const Canvas = () => {
   },[MODE,SCALE,canvasmove,overCanvasredraw,draw,redraw])
 
   return( <DRAWING_PAGE ref={pageRef} >
+    <Popups/>
+    <Processings/>
     <OVER_CANVAS ref={overCanvasRef}/>
     <DRAWING_CANVAS  ref={canvasRef}/>
     <MOVE_BOX 

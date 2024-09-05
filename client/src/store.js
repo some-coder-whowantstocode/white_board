@@ -1,17 +1,19 @@
 import { configureStore } from '@reduxjs/toolkit'
 
+import processReducer from './features/processes/slices/processSlice'
 import cursorReducer from './features/canvas/slices/cursorSlice'
 import canvasReducer from './features/canvas/slices/canvasSlice'
-import shapeReducer from './features/canvas/slices/shapesSlice'
 import popupReducer from './features/popup/slices/popupSlice'
+import shapeReducer from './features/canvas/slices/shapesSlice'
 import authReducer from './features/authentication/slices/authSlice'
 
 export default configureStore({
   reducer: {
-    cursor:cursorReducer,
+    process:processReducer,
     canvas:canvasReducer,
-    shape:shapeReducer,
+    cursor:cursorReducer,
     popup:popupReducer,
+    shape:shapeReducer,
     auth:authReducer
   },
 }) 
