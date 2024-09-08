@@ -12,6 +12,51 @@ const User  = require('./model.js');
 const sendmail = require('./services/Mail.js');
 const { passwordchecker } = require('./Middleware/checkpassword.js');
 
+
+const generateOtp = async()=>{
+
+}
+
+const verifyUser = async(req,res,next)=>{
+  const {otp, email} = req.body;
+  if(!otp || !email){
+    throw new BadRequest('Please provide all required value');      
+  }
+
+  const user = await User.findOne({email});
+  if(!user){
+    throw new BadRequest("invalid credentials");
+  }
+
+  const currentdate = new Date();
+  if(user.verifycodeexpiry >= currentdate){
+    throw new BadRequest("code expired please try again.");
+  }
+
+  if(otp !== user.verifycode){
+    throw new BadRequest("invalid code");
+  }
+
+  await User.findByIdAndUpdate(user._id,{isverified:true});
+
+    const token = await jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: 3600 });
+      
+      res.cookie('token', token, {
+        // secure: true, 
+        httpOnly: true, 
+        sameSite: "lax" ,
+      })
+
+      res.send({
+        user: {
+          verified:true,
+          name:user.name,
+          email:user.email
+        },
+        msg:"successfully signed up."
+      })
+}
+
 const Register = async(req, res, next) => {
     const { name, email, password, persist } = req.body;
     //use bloom filter to check
@@ -30,37 +75,43 @@ const Register = async(req, res, next) => {
       const hash = await bcrypt.hash(password,salt);
 
       const date = new Date();
-      const verifycodeexpiry = new Date(date.getHours() + 12);
-      const verifycode = await hashpassword(Math.floor(100000 + Math.random() * 900000).toString()) ;
-
+      
+      const verifycodeexpiry = date.setHours(date.getHours() + 12);
+      let arr = new Uint32Array(1);
+      crypto.getRandomValues(arr);
+      const randomNumber = arr[0] / (0xFFFFFFFF + 1);
+      const verifycode =  Math.floor(randomNumber * (999999 - 100000 + 1)) + 100000;
+      const resetpasswordToken = await jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: 3600 });
+      const resettokenexpiry = date.setHours(date.getHours() + 12);
+    
+      // const verifycode = await bcrypt.hash(Math.floor(100000 + crypto.getRandomValues(1) * 900000).toString(), salt) ;
       const newUser = new User({
         name,
         email,
         password: hash,
         verifycode,
-        verifycodeexpiry
+        verifycodeexpiry,
+        resetpasswordToken,
+        resettokenexpiry
       });
 
       await newUser.save();
-
-      const token = await jwt.sign({ id: newUser.id }, process.env.JWT_SECRET, { expiresIn: 3600 });
-
-    sendmail('register',"are you this man",email)
-
-
-      res.cookie('token', token, {
-        // secure: true, 
-        httpOnly: true, 
-        sameSite: "lax" ,
-        expires:  persist ? new Date(Date.now() + 60 * 60 * 1000) : 0,
-      })
+      
+      
+      sendmail(
+        'WhiteBoard user verificaiton',
+        `For user login otp:${verifycode} please go to this link - ${process.env.CLIENT}/verify/${email}`,
+        email,
+        `
+        <div>Here is your otp:${verifycode}<div/>
+        <a href="${process.env.CLIENT}/verify"> verify <a/>`
+      )
 
       res.send({
         user: {
-          name: user.name,
-          email:user.email
+          verified:false
         },
-        msg:"successfully signed up."
+        msg:"successfully signed up an email is sent to you account please verify."
       })
         
   }
@@ -79,25 +130,62 @@ const LoginUser =async(req, res, next) => {
     if (!isMatch){
       throw new BadRequest( 'Invalid credentials' );
     } 
+
+  
+
+    if(!user.isverified){
+      let verifycodeexpiry = user.verifycodeexpiry;
+      let verifycode = user.verifycode;
+      const currentdate = new Date();
+      if(currentdate >= verifycodeexpiry){
+        verifycodeexpiry.setHours(currentdate.getHours() + 12);
+        let arr = new Uint32Array(1);
+        crypto.getRandomValues(arr);
+        const randomNumber = arr[0] / (0xFFFFFFFF + 1);
+        verifycode =  Math.floor(randomNumber * (999999 - 100000 + 1)) + 100000;
+        await User.findByIdAndUpdate(user._id,{verifycodeexpiry,verifycode})
+      }
+
+      sendmail(
+        'WhiteBoard user verificaiton',
+        `For user login otp:${verifycode} please go to this link - ${process.env.CLIENT}/verify`,
+        email,
+        `
+        <div>Here is your otp:${verifycode}<div/>
+        <a href="${process.env.CLIENT}/verify/${email}"> verify <a/>`
+      )
+
+      res.send({
+        user: {
+          verified:false
+        },
+        msg:"Please verify user from gmail."
+      })
+
+    }
+
     const token = await jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: 3600 });
+      
     res.cookie('token', token, {
       // secure: true, 
       httpOnly: true, 
       sameSite: "lax" ,
-      expires:  persist  ? new Date(Date.now() + 60 * 60 * 1000) : 0,
+      expires:  persist ? new Date(Date.now() + 60 * 60 * 1000) : 0,
     })
 
     res.send({
       user: {
-        name: user.name,
+        verified:true,
+        name:user.name,
         email:user.email
       },
-      msg:"successfully logged in."
+      msg:"successfully signed up."
     })
-              }
+}
 
 const DeleteUser = async(req, res,next) => {
     const {email, pass} = req.body;
+
     if(!email || !pass){
       throw new BadRequest('please provide all values.')
     }
@@ -119,25 +207,41 @@ const DeleteUser = async(req, res,next) => {
   }
 
 const ChangePassword = async(req, res, next) => {
-    const { oldpassword, newpassword, email } = req.body;
-  
-    if (!oldpassword || !newpassword || !email) {
-      throw new BadRequest('Please provide both old, new password and email.')
+    const { password} = req.body;
+
+    const {token} = req.params;
+
+    if ( !password ) {
+      throw new BadRequest('Please provide the password.')
     }
-    const { _id, password } = await User.findOne({email}).select('password');
 
-      if(!password){
-        throw new UserNotFound("No such email exists.")
-      }
-      const authentic = await passwordchecker(password, oldpassword)
-      if(!authentic){
-        throw new BadRequest("invalid password.");
-      }
+    const data = await jwt.verify(token,process.env.JWT_SECRET);
+    if(!data.email){
+      throw new BadRequest('Invalid token');
+    }
 
-      const salt = await bcrypt.genSalt(10);
-      const hash = await bcrypt.hash(newpassword, salt);
-      
-      await User.findByIdAndUpdate(_id,{password:hash},{new:true});
+
+    const user = await User.findOne({email:data.email});
+    if(!user){
+      throw new UserNotFound("User does not exist")
+    }
+
+    if(token !== user.resetpasswordToken){
+      throw new BadRequest('Please provide a valid token');
+    }
+    let newdate = new Date();
+    if(newdate >= user.resettokenexpiry) {
+      throw new BadRequest("Token expired please try again");
+    }
+    
+    
+  
+   
+    const salt = await bcrypt.genSalt(10);
+    const hash = await bcrypt.hash(password, salt);
+    await User.findOneAndUpdate({email:data.email},{password:hash},{new:true});
+
+
 
       res.send({msg:'password updated'});
 
@@ -145,20 +249,30 @@ const ChangePassword = async(req, res, next) => {
 
 const ForgotPassword = async(req, res) => {
     const { email } = req.body;
-  
-    if (!email) {
-      throw new BadRequest("Please enter an email")
+    if (!email ) {
+      throw new BadRequest("Please provide an email")
     }
+
+    const resetpasswordToken = await jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: 3600 });
+    let date = new Date();
+    const resettokenexpiry = date.setHours(currentdate.getHours() + 12);
   
-    const user = await User.findOne({ email })
+    const user = await User.findOneAndUpdate({email},{resetpasswordToken,resettokenexpiry},{new:true});
+
         if (!user) {
           throw new BadRequest("Email is not registerd.")
         };
   
   
-      let link = "http://" + req.headers.host + "/api/users/reset/" + user.resetPasswordToken;
-      await sendmail('forgotpassword',link,email)
-      res.status(200).json({msg: 'A reset email has been sent to ' + user.email + '.'});
+      let link = process.env.CLIENT +"/resetpass/"+ user.resetpasswordToken;
+      sendmail('forgotpassword',
+        `For changing password please go to this link - ${link}`,
+        email,
+        `
+        <div>Visit the link to change your password.<div/>
+        <a href="${link}"> change password <a/>`)
+      
+      res.status(200).json({msg: 'A reset email has been sent to your email.'});
           
   }
 
@@ -166,9 +280,14 @@ const UpdateUser =async(req, res, next)=>{
   const {name, email, password} = req.body;
   const {token} = req.cookies;
   if(!token){
-    throw new Unauthorized("Token expired."); 
+    throw new Unauthorized("unauthorized access"); 
   }
 
+  const data = await jwt.verify(token,process.env.JWT_SECRET)
+  if(!data.id){
+    throw new BadRequest('Invalid token');
+  }
+    
   const updateduser = {
     name, email, password
   }
@@ -179,14 +298,11 @@ const UpdateUser =async(req, res, next)=>{
     updateduser.password = hash;
   }
 
-  const isverified = await jwt.verify(token,process.env.JWT_SECRET)
-    if(!isverified){
-      throw new Unauthorized("Invalid token.");
-    }else{
-      const user = await User.findByIdAndUpdate(data.id,{...updateduser},{new:true});
-        res.send({msg:'user updated',name:user.name,email:user.email})
-      
-    }  
+ 
+    const user = await User.findByIdAndUpdate(data.id,{...updateduser},{new:true});
+      res.send({msg:'user updated',name:user.name,email:user.email})
+    
+
 }
 
 module.exports = {
@@ -195,5 +311,7 @@ module.exports = {
     DeleteUser,
     UpdateUser,
     ChangePassword,
-    ForgotPassword
+    ForgotPassword,
+    verifyUser,
+    generateOtp
 }

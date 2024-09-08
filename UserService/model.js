@@ -33,6 +33,15 @@ const UserSchema = new Schema({
   verifycodeexpiry:{
     type: Date,
     required: [true,"verifycodeexpiry is required"]
+  },
+  resetpasswordToken:{
+    type: String,
+    required: [true,"verifycodeexpiry is required"]
+  },
+  resettokenexpiry:{
+    type:Date,
+    required: [true,"verifycodeexpiry is required"]
+
   }
 });
 

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 
 import { 
     Authpage, 
@@ -13,10 +13,22 @@ import { pagelocation } from '../assets/pagesheet';
 import Popups from '../features/popup/components/Popups';
 import { history } from '../App';
 import Processings from '../features/processes/components/processings';
+import { useDispatch, useSelector } from 'react-redux';
+import { isloggedin } from '../features/authentication/slices/authSlice';
 
 const Auth = () => {
     
     const {AUTHDATA, show} = useauth();
+  const AUTH = useSelector(state=>state.auth.authstatus);
+  const dispatch = useDispatch();
+  
+
+    useEffect(()=>{
+        dispatch(isloggedin())
+        if(AUTH){
+          history.navigate(pagelocation.user);
+        }
+      },[AUTH])
 
 return (
     <Authpage >

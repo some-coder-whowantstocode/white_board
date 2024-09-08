@@ -16,6 +16,39 @@ const Moveleft = keyframes`
     }
 `
 
+const Movetop = keyframes`
+    0% {
+        top: 0;
+        height: 85%;
+    }
+    50%{
+        top: 0%;
+        height: 50%;
+    }
+    100% {
+        /* left: 50%; */
+        height: 30%;
+        z-index: 1;
+    }
+`
+
+const Movebottom = keyframes`
+   0% {
+        bottom: 0;
+        height: 85%;
+    }
+    50%{
+        top: 40%;
+        height: 100%;
+    }
+    100% {
+        /* left: 50%; */
+        top: 60%;
+        height: 100%;
+        z-index: 1;
+    }
+`
+
 const Moveright = keyframes`
    0% {
         left: 0;
@@ -35,4 +68,6 @@ const Moveright = keyframes`
 export {
     Moveleft,
     Moveright,
+    Movebottom,
+    Movetop
 }

@@ -50,6 +50,7 @@ const User_btn =styled.button`
     padding: 5px 10px;
     border: none;
     color: white;
+    margin-right: 2rem;
     ${props=>props.col ? 
     `
     background-color: #9ac4da;

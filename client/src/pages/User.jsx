@@ -109,7 +109,13 @@ const User = () => {
           </RIGHT>
           
         </USER_DETAILS>
+        <div>
       <User_btn disabled={updateneeded} col={updateneeded} onClick={()=>update()}>update</User_btn>
+      <User_btn col={false} onClick={()=>{
+        dispatch(logOut());
+        history.navigate(pagelocation.auth)
+        }}>Log out</User_btn>
+        </div>
     </USER_PAGE>
   )
 }

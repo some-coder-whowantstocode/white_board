@@ -29,28 +29,21 @@ const transporter = nodemailer.createTransport({
 
 
 
-const sendmail=(sub,text,email)=> {
-  return new Promise((resolve, reject)=>{
+const sendmail= async( sub, text, email, htmlContent )=> {
+  try{
     const mailOptions = {
       from: process.env.DEV_MAIL,
       to: email,
       subject: sub,
-      text: text
+      text: text,
+      html: htmlContent
     };
 
-    
-  transporter.sendMail(mailOptions,function(err,info){
-  if(err){
-    // reject( new BadRequest("The email is invalid."));
+  let res = await transporter.sendMail(mailOptions);
+  console.log(res)
+  }catch(err){
     console.log(err);
-  }else{   
-    resolve(true);
-    console.log("Message sent: %s", info);
   }
- });
-  })
-  
-  
  
 }
 

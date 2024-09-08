@@ -1,7 +1,9 @@
 import styled, { css } from 'styled-components'
 
 import {
+    Movebottom,
     Moveleft, Moveright,
+    Movetop,
 } from './animations'
 
 const Authpage = styled.div`
@@ -19,16 +21,22 @@ const Authpage = styled.div`
 
 const Authbox = styled.div`
     transition: all 0.3s;
-    width: fit-content;
-    height: fit-content ;
+    /* width: fit-content; */
+    /* height: fit-content ; */
     background-color: transparent;
     border-radius: 30px;
     display: flex;
+    align-items: center;
+    justify-content: center;
     overflow: hidden;
-    padding: 40px;
+    /* padding: 40px; */
     box-sizing: border-box;
     box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
     position: relative;
+
+    @media screen and (max-width: 700px) {
+        flex-direction: column;
+    }
 `
 
 
@@ -44,14 +52,37 @@ const Styledbackground = styled.div`
         props=> props.show === 'signin' ?
 
         css`
-        border-radius: 30% 0 0 30%;
+        border-radius: 2rem;
         animation: ${Moveright} 0.5s linear forwards;
         `
         :
         css`
-        border-radius: 0 30% 30% 0;
+        border-radius: 2rem;
         animation: ${Moveleft} 0.5s linear forwards;
         `
+    }
+
+    @media screen and (max-width: 700px) {
+    position: absolute;
+    width: 100%;
+    height: 50%;
+    transition: all 0.5s;
+    top: 0px;
+    background-color: #7724e2;
+    z-index: 1;
+    ${
+        props=> props.show === 'signin' ?
+
+        css`
+        border-radius: 2rem;
+        animation: ${Movebottom} 0.5s linear forwards;
+        `
+        :
+        css`
+        border-radius: 2rem;
+        animation: ${Movetop} 0.5s linear forwards;
+        `
+    }
     }
     
 `
@@ -65,13 +96,18 @@ const Authbox_part = styled.div`
     justify-content: space-around ;
     flex-direction: column;
     transition: opacity 0.6s;
-    padding-left: 5px;
     line-height: 3;
-
+    padding: 3rem;
+    a{
+        font-weight: 300;
+        text-decoration: underline;
+        color: blue;
+        cursor: pointer;
+        font-size:0.8rem;
+    }
     p{
         white-space: nowrap;
         font-size: clamp(15px,2vw,200px);
-        padding-left: 5px;
         font-weight: 700;
     }
     z-index:0;
@@ -79,6 +115,19 @@ const Authbox_part = styled.div`
     z-index:2;
     `
     }
+    @media screen and (max-width: 700px){
+    padding: 1rem;
+    }
+`
+
+const HIDDEN_AUTH_PART = styled.div`
+display: flex;
+align-items: center;
+justify-content: center;
+flex-direction: column;
+p{
+    color: white;
+}
 `
 
 const Auth_icons = styled.div`
@@ -92,8 +141,9 @@ const Auth_icons = styled.div`
 
 const Auth_instructions = styled.div`
     color: gray;
-    font-size: clamp(10px,1vw,200px);
+    font-size: clamp(1rem,1vw,200px);
     line-height: 1;
+    padding:0.5rem 0 1rem 0;
     ${
         props=> props.show !== 'true' && css` color:white;`
     }
@@ -162,5 +212,6 @@ export {
     Auth_btn,
     Styledbackground,
     Auth_logo,
-    Rememberme
+    Rememberme,
+    HIDDEN_AUTH_PART
 }

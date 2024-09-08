@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react'
 
 import {
-    Authbox_part, Auth_icons, Auth_instructions, Auth_input, Auth_btn, Rememberme
+    Authbox_part, Auth_icons, Auth_instructions, Auth_input, Auth_btn, Rememberme,
+    HIDDEN_AUTH_PART
 } from '../styles/auth.js'
 import { useauth } from '../context/authContext.jsx'
 import { useDispatch, useSelector } from 'react-redux';
@@ -13,6 +14,22 @@ import { handler } from '../../../helper.js';
 import { popexternalProcess, pushexternalProcess } from '../../processes/slices/processSlice.js';
 
 
+export const Tests = {
+    password:[
+    // {sample: /^(?=.*[a-z]).*$/, err: "The password must contain at least one small letter."},
+    // {sample: /^(?=.*[A-Z]).*$/, err: "The password must contain at least one capital letter."},
+    // {sample: /^(?=.*[0-9]).*$/, err: "The password must contain at least one number."},
+    // {sample: /^(?=.*[!@#$%^&*]).*$/, err: "The password must contain at least one symbol."},
+    // {sample: /^.{6,12}$/, err: "The password length must be between 6 to 12 characters."}
+],
+email:[
+    {sample: /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/, err:"Please provide a valid email."}
+],
+name:[
+    {sample: /^.{4,14}$/, err: "The name length must be between 6 to 12 characters."}
+]
+}
+
 const Authblock = ({item}) => {
     const AUTH = useSelector(state=>state.auth)
     const EXTERNAL_PROCESS = useSelector(state=>state.process.externalProcesses);
@@ -22,21 +39,7 @@ const Authblock = ({item}) => {
         signup:{name:'', email:'', password:''}}
     );
 
-    const Tests = {
-        password:[
-        // {sample: /^(?=.*[a-z]).*$/, err: "The password must contain at least one small letter."},
-        // {sample: /^(?=.*[A-Z]).*$/, err: "The password must contain at least one capital letter."},
-        // {sample: /^(?=.*[0-9]).*$/, err: "The password must contain at least one number."},
-        // {sample: /^(?=.*[!@#$%^&*]).*$/, err: "The password must contain at least one symbol."},
-        // {sample: /^.{6,12}$/, err: "The password length must be between 6 to 12 characters."}
-    ],
-    email:[
-        {sample: /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/, err:"Please provide a valid email."}
-    ],
-    name:[
-        {sample: /^.{6,14}$/, err: "The name length must be between 6 to 12 characters."}
-    ]
-    }
+   
 
     const dispatch = useDispatch();
 
@@ -75,9 +78,15 @@ const Authblock = ({item}) => {
                     headers: headers,
                     withCredentials: true 
                 });
-                dispatch(logIn(data.user));
-                handler(200,"successfully loggedin.")
-                history.navigate(pagelocation.user)
+                const {user} = data;
+
+                if(!user.verified){
+                    history.navigate(pagelocation.notverified);
+                }
+                    dispatch(logIn({name:user.name,email:user.email}));
+                    history.navigate(pagelocation.user)
+                    handler(200,"successfully loggedin.")
+            
             }catch(err){
                 console.log(err)
                 handler(err.status ,err?.response?.data?.err || err?.message || "something went wrong.")
@@ -99,9 +108,8 @@ const Authblock = ({item}) => {
                     headers: headers,
                     withCredentials: true 
                 });
-                dispatch(logIn(data.user));
-                handler(200,"successfully loggedin.")
-                history.navigate(pagelocation.canvas)
+                handler(200,"successfully signed up.")
+                    history.navigate(pagelocation.notverified);
             }catch(err){
                 handler(err.status ,err?.response?.data?.err || err?.message || "something went wrong.")
 
@@ -155,15 +163,15 @@ return (
                         }}
                         >{item.btntext}
                         </Auth_btn>
+                    <a  onClick={()=>history.navigate(pagelocation.forgotpass)} >forgot password</a>
                         </>
                             :
-                            <>
+                            <HIDDEN_AUTH_PART>
                                 <p>{item.alternative.head}</p>
                                 <Auth_instructions>{item.alternative.instruction}</Auth_instructions>
                                 <Auth_btn onClick={()=>show != item.name && setshow(item.name)}>{item.btntext}</Auth_btn>
-                            </>
+                            </HIDDEN_AUTH_PART>
                         }
-                    
                     </Authbox_part>
             }  
     </>
