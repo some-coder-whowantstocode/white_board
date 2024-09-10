@@ -117,16 +117,17 @@ const Register = async(req, res, next) => {
   }
 
 const LoginUser =async(req, res, next) => {
-  console.log(req)
     const { email, password, persist } = req.body;
     if (!email || !password) {
       throw new BadRequest( 'Please enter all fields' );
     }
-  
+  console.log(email, password, persist);
     const user = await User.findOne({ email });
     if (!user) {
       throw new UserNotFound( 'user does not exist.' );
     }
+  console.log(user);
+
     const isMatch = await passwordchecker( password, user.password);
     if (!isMatch){
       throw new BadRequest( 'Invalid credentials' );
