@@ -11,7 +11,6 @@ export const FileProvider =({children})=>{
     const [width,setwidth] = useState(250);
     const [currentFiles,setFiles] = useState([]);
     const width_limit = {max:300,min:200,logo:70}
-    const [selected,setselected] = useState(FILE_CONTROL[1].name)
 
     const BurgerMenu = {
         icon:IconBox.MENU.icon,
@@ -42,15 +41,16 @@ export const FileProvider =({children})=>{
             func(){selected !== this.name && setselected(this.name)},
             selectable:true
         },
-        {
-            name:IconBox.SHARE.name,
-            icon:IconBox.SHARE.icon,
-            func(){selected !== this.name && setselected(this.name)},
-            selectable:true
-        }
+        // {
+        //     name:IconBox.SHARE.name,
+        //     icon:IconBox.SHARE.icon,
+        //     func(){selected !== this.name && setselected(this.name)},
+        //     selectable:true
+        // }
     ]
 
 
+    const [selected,setselected] = useState(FILE_CONTROL[1].name)
     
     return(
         <fileContext.Provider value={{currentFiles,getFiles,FILE_CONTROL, width, setwidth, width_limit, BurgerMenu,selected}}>
