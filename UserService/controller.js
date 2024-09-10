@@ -117,6 +117,7 @@ const Register = async(req, res, next) => {
   }
 
 const LoginUser =async(req, res, next) => {
+  console.log(req.body)
     const { email, password, persist } = req.body;
     if (!email || !password) {
       throw new BadRequest( 'Please enter all fields' );
