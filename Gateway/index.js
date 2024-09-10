@@ -15,7 +15,7 @@ const { userServiceProxy } = require("./proxy/userserviceproxy");
 const app = express(); 
 
 const HOST = "localhost"; 
-const { PORT } = process.env; 
+const port = process.env.PORT || 3000; 
 
 
 var corsOptions = {
@@ -44,6 +44,6 @@ app.use( '/user',userServiceProxy);
 app.use(ErrorHandler)
 
 
-app.listen(PORT, HOST, () => { 
-	console.log(`Starting Proxy at ${HOST}:${PORT}`); 
+app.listen(port, HOST, () => { 
+	console.log(`Starting Proxy at ${HOST}:${port}`); 
 });
