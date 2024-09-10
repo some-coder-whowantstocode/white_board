@@ -1,5 +1,4 @@
 const { BadRequest } = require("../ErrorHandler");
-const {Resend} = require('resend')
 const nodemailer = require("nodemailer");
 
 // sending mail with nodemailer and mailtrap
