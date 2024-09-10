@@ -18,7 +18,6 @@ import Notverified from './pages/error pages/Notverified.jsx';
 import Verify from './pages/Verify.jsx';
 import NotFound from './pages/error pages/NotFound.jsx';
 import InvalidParameter from './pages/error pages/InvalidParameter.jsx';
-import { Errorboundary } from './Errorboundary/errorboundry.jsx';
 import ForgotPassword from './pages/ForgotPassword.jsx';
 import Resetpassword from './pages/Resetpassword.jsx';
 
@@ -52,7 +51,6 @@ function App() {
       history.navigater = nav;
     },[nav])
   return (
-    <Errorboundary>
       <Routes >
     
       <Route 
@@ -134,7 +132,6 @@ function App() {
       </Route>
 
       </Routes>
-      </Errorboundary>
   )
 }
 

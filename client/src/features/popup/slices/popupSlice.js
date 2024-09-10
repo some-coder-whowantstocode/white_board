@@ -9,7 +9,8 @@ export const popupSlice = createSlice({
         style:{
             "success" : {bg:"black",color:'green'},
             "error" : {bg:"black",color:'red'},
-    },
+        },
+        maxAllowed:10,
         timeout:1000
     },
     reducers:{
@@ -19,6 +20,10 @@ export const popupSlice = createSlice({
             delete state.popups[id];
         },
         addpopup(state,action){
+            let existinglength = Object.keys(state.popups).length;
+            if(existinglength == state.maxAllowed){
+               delete state.popups[Object.keys(state.popups)[0]];
+            }
             const {msg, type} = action.payload;
             let id = uuidv4();
             state.popups[id] = {

@@ -14,6 +14,6 @@ export default configureStore({
     cursor:cursorReducer,
     popup:popupReducer,
     shape:shapeReducer,
-    auth:authReducer
+    auth:authReducer,
   },
 }) 

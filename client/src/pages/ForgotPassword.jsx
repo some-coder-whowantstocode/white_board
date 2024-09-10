@@ -100,7 +100,7 @@ const ForgotPassword = () => {
             <input type='email' required value={email} onChange={(e)=>setemail(e.target.value)} />
             <div>
             <button onClick={()=>changepass()}>send</button>
-            <button onClick={()=>history.navigate(pagelocation.canvas)}>go back</button>
+            <button onClick={()=>history.navigate(pagelocation.auth)}>go back</button>
             </div>
         </REQUESTBOX>
     </FORGOTPASSPAGE>

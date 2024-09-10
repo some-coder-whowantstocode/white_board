@@ -8,6 +8,7 @@ const POPUPBOX = styled.div`
     top: 0;
     right: 0;
     width: 300px;
+    z-index: 10000;
 `
 
 const Popups = () => {

@@ -206,15 +206,15 @@ const Canvas = () => {
 
 
   useEffect(()=>{
-    if(drawingcanvas){
       const id = setInterval(() => {
-        SaveDrawing();
+        if(drawingcanvas){
+          SaveDrawing();
+        }
       }, 1000 * 3);
 
       return ()=>{
         clearInterval(id);
       }
-    }
   },[drawingcanvas]);
 
   useEffect(()=>{

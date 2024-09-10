@@ -6,7 +6,7 @@ import { MdOutlineRectangle } from "react-icons/md";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { GiEntryDoor } from "react-icons/gi";
 import { BsFillCursorFill } from "react-icons/bs";
-
+import { FaShareFromSquare } from "react-icons/fa6";
 
 export const IconBox = {
     SHAPES:{
@@ -76,5 +76,9 @@ export const IconBox = {
     CURSOR:{
         name:'cursor',
         icon:BsFillCursorFill
+    },
+    SHARE:{
+        name:'share',
+        icon:FaShareFromSquare
     }
 }

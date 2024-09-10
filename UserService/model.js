@@ -41,7 +41,10 @@ const UserSchema = new Schema({
   resettokenexpiry:{
     type:Date,
     required: [true,"verifycodeexpiry is required"]
-
+  },
+  Drawings:{
+    type:Array,
+    default:[]
   }
 });
 

@@ -65,12 +65,65 @@ const User_btn =styled.button`
     cursor:pointer;
     }
     `
-}
+    }
+    ${props=>`
+    background-color: ${props.backcol};
+    &:hover{
+    background-color: ${props.hovbackcol};
+    }
+    `}
+
+`
+
+const  HIDDEN_PAGE = styled.div`
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    width: 100vw;
+    background-color: #8080808a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+`
+
+const CONTENT = styled.div`
+    background-color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding:1rem 2rem;
+    border-radius: 1rem;
+    p{
+        display: flex;
+        margin: 1rem;
+        p{
+            padding: 0px 0.3rem;
+            color: red;
+            margin: 0rem;
+        }
+    }
+    input{
+        width: 250px;
+        height: 30px;
+        outline: none;
+        font-size: 19px;
+    }
+    div{
+        margin: 10px 0px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 `
 export{
     USER_PAGE,
     USER_DETAILS,
     LEFT,
     RIGHT,
-    User_btn
+    User_btn,
+    HIDDEN_PAGE,
+    CONTENT
 }

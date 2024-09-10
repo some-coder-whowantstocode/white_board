@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 
-import { USER_DETAILS, USER_PAGE, LEFT, RIGHT, User_btn } from '../features/user/styles/user'
+import { USER_DETAILS, USER_PAGE, LEFT, RIGHT, User_btn, HIDDEN_PAGE, CONTENT } from '../features/user/styles/user'
 import { pagelocation } from '../assets/pagesheet'
 import { Auth_logo } from '../features/authentication/styles/auth'
 import logo from '../assets/white board logo.png'
@@ -11,6 +11,8 @@ import axios from 'axios'
 import { isloggedin, logOut, getuserData } from '../features/authentication/slices/authSlice'
 import { handler } from '../helper'
 import { history } from '../App'
+import { popexternalProcess, pushexternalProcess } from '../features/processes/slices/processSlice'
+import { Tests } from '../features/authentication/components/Authblock'
 
 
 
@@ -21,7 +23,11 @@ const User = () => {
   const [password, setpassword] = useState('')
   const [original, changeoriginal] = useState({name:'',email:"",password:""});
   const [updateneeded, setupdateneed] = useState(false);
+  const [show,setshow] = useState(false);
+  const [confirm,setconfirm] = useState("");
   const AUTH = useSelector(state=>state.auth);
+  const EXTERNAL_PROCESS = useSelector(state=>state.process.externalProcesses);
+
 
   const dispatch = useDispatch();
 
@@ -60,6 +66,8 @@ const User = () => {
 
   const update =async()=>{
     try {
+      if(EXTERNAL_PROCESS) return;
+      dispatch(pushexternalProcess('updating user....'));
       const URL = `${import.meta.env.VITE_KEY_GATEWAY}${import.meta.env.VITE_KEY_USERSERVICE}${import.meta.env.VITE_KEY_USER_UPDATE}`;
       const headers = {}
       const body = {
@@ -81,10 +89,37 @@ const User = () => {
       })
       handler(200, "user updated")
     } catch (error) {
-      console.log(error)
-      handler(error.status)      
+      handler(err.status ,err?.response?.data?.err || err?.message || "something went wrong.")    
+    }finally{
+      dispatch(popexternalProcess());
     }
   }
+
+  const deleteuser = async()=>{
+    try {
+      if(EXTERNAL_PROCESS) return;
+      dispatch(pushexternalProcess('updating user....'));
+      const URL = `${import.meta.env.VITE_KEY_GATEWAY}${import.meta.env.VITE_KEY_USERSERVICE}${import.meta.env.VITE_KEY_USER_DELETE}`;
+      const headers = {}
+      const body = {
+        pass:confirm
+      };
+      const {data} = await axios.post(URL,body,{
+          headers: headers,
+          withCredentials: true 
+      });
+      handler(200, "user deleted");
+      history.navigate(pagelocation.auth);
+      dispatch(logOut());
+    } catch (err) {
+      handler(err.status ,err?.response?.data?.err || err?.message || "something went wrong.")
+    }finally{
+      dispatch(popexternalProcess());
+    }
+
+    console.log('deleteeeeeeeeeeeeeee')
+  }
+
 
   return (
     <USER_PAGE>
@@ -110,12 +145,57 @@ const User = () => {
           
         </USER_DETAILS>
         <div>
-      <User_btn disabled={updateneeded} col={updateneeded} onClick={()=>update()}>update</User_btn>
-      <User_btn col={false} onClick={()=>{
+      <User_btn 
+      disabled={updateneeded} 
+      col={updateneeded} 
+      onClick={()=>update()}>
+        update
+      </User_btn>
+      
+      <User_btn 
+      backcol={'#a71000'}
+      hovbackcol={'#892319'}
+      onClick={()=>{
         dispatch(logOut());
         history.navigate(pagelocation.auth)
-        }}>Log out</User_btn>
+        }}>
+          Log out
+      </User_btn>
+
+      <User_btn 
+        backcol={'#a71000'}
+        hovbackcol={'#892319'}
+      onClick={()=>setshow(true)}>
+        delete user
+      </User_btn>
+
         </div>
+
+        {
+          show &&
+        <HIDDEN_PAGE>
+          <CONTENT>
+            <p>Do you really want to <p>Permanently  Delete</p>  this account?</p>
+            <input type="password" value={confirm} onChange={(e)=>setconfirm(e.target.value)} />
+            <div>
+            <User_btn 
+              backcol={'#a71000'}
+              hovbackcol={'#892319'}
+              onClick={()=>deleteuser()}>
+              confirm
+            </User_btn>
+            <User_btn 
+              onClick={()=>{
+                setshow(false);
+                setconfirm("");
+                }}>
+              cancel
+            </User_btn>
+            </div>
+          </CONTENT>
+        </HIDDEN_PAGE>
+        }
+        
     </USER_PAGE>
   )
 }

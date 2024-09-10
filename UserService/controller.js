@@ -184,23 +184,33 @@ const LoginUser =async(req, res, next) => {
 }
 
 const DeleteUser = async(req, res,next) => {
-    const {email, pass} = req.body;
+    const {pass} = req.body;
 
-    if(!email || !pass){
-      throw new BadRequest('please provide all values.')
+    const {token} = req.cookies;
+    if(!token){
+      throw new Unauthorized("unauthorized access"); 
     }
-    const password = await User.findOne({email}).select('password');
+  
+    const data = await jwt.verify(token,process.env.JWT_SECRET)
+    if(!data.id){
+      throw new Unauthorized('Invalid token');
+    }
 
-    if(!password){
+    if( !pass){
+      throw new BadRequest('please provide password.')
+    }
+    const user = await User.findById(data.id);
+
+    if(!user.password){
       throw new UserNotFound('This email does not have an account.')
     }
 
-    const authentic = await passwordchecker(pass,password.password);
+    const authentic = await passwordchecker(pass,user.password);
     if(authentic){
-      await User.deleteOne({email})
+      await User.deleteOne({email:user.email})
       res.json({ success: true })
     }else{
-    throw new Unauthorized("invalid password");      
+    throw new BadRequest("invalid password");      
     }
       
  
@@ -217,7 +227,7 @@ const ChangePassword = async(req, res, next) => {
 
     const data = await jwt.verify(token,process.env.JWT_SECRET);
     if(!data.email){
-      throw new BadRequest('Invalid token');
+      throw new Unauthorized('Invalid token');
     }
 
 
@@ -255,14 +265,14 @@ const ForgotPassword = async(req, res) => {
 
     const resetpasswordToken = await jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: 3600 });
     let date = new Date();
-    const resettokenexpiry = date.setHours(currentdate.getHours() + 12);
-  
+    const resettokenexpiry = date.setHours(date.getHours() + 12);
     const user = await User.findOneAndUpdate({email},{resetpasswordToken,resettokenexpiry},{new:true});
 
         if (!user) {
           throw new BadRequest("Email is not registerd.")
         };
-  
+
+        console.log(user.resetpasswordToken)
   
       let link = process.env.CLIENT +"/resetpass/"+ user.resetpasswordToken;
       sendmail('forgotpassword',
@@ -285,7 +295,7 @@ const UpdateUser =async(req, res, next)=>{
 
   const data = await jwt.verify(token,process.env.JWT_SECRET)
   if(!data.id){
-    throw new BadRequest('Invalid token');
+    throw new Unauthorized('Invalid token');
   }
     
   const updateduser = {

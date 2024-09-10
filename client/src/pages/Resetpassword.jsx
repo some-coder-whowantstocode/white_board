@@ -9,6 +9,7 @@ import Popups from '../features/popup/components/Popups'
 import { history } from '../App'
 import { pagelocation } from '../assets/pagesheet'
 import { FORGOTPASSPAGE, REQUESTBOX } from './ForgotPassword'
+import { useParams } from 'react-router-dom'
 
 
 const Resetpasssword = () => {
@@ -16,6 +17,7 @@ const Resetpasssword = () => {
     const dispatch = useDispatch();
     const EXTERNAL_PROCESS = useSelector(state=>state.process.externalProcesses);
     
+    const {token} = useParams();
     const [password, setpassword] = useState('');
 
     const changepass = async()=>{
@@ -34,14 +36,16 @@ const Resetpasssword = () => {
             }
             
             dispatch(pushexternalProcess({msg:"singing in..."}))
-            const URL = `${import.meta.env.VITE_KEY_GATEWAY}${import.meta.env.VITE_KEY_USERSERVICE}${import.meta.env.VITE_KEY_USER_FORGOT_PASS}`;
+            const URL = `${import.meta.env.VITE_KEY_GATEWAY}${import.meta.env.VITE_KEY_USERSERVICE}${import.meta.env.VITE_KEY_USER_CHANGE_PASS}/${token}`;
             const body = {
                 password
             };
             const headers = {}
             const {data} = await axios.post(URL, body, headers)
             handler(200,'password changed successfully')
+            history.navigate(pagelocation.auth);
         }catch(err){
+            console.log(err)
             handler(err.status ,err?.response?.data?.err || err?.message || "something went wrong.")
         }finally{
             dispatch(popexternalProcess())

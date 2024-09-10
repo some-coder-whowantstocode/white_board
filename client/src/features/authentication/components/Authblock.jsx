@@ -16,11 +16,11 @@ import { popexternalProcess, pushexternalProcess } from '../../processes/slices/
 
 export const Tests = {
     password:[
-    // {sample: /^(?=.*[a-z]).*$/, err: "The password must contain at least one small letter."},
-    // {sample: /^(?=.*[A-Z]).*$/, err: "The password must contain at least one capital letter."},
-    // {sample: /^(?=.*[0-9]).*$/, err: "The password must contain at least one number."},
-    // {sample: /^(?=.*[!@#$%^&*]).*$/, err: "The password must contain at least one symbol."},
-    // {sample: /^.{6,12}$/, err: "The password length must be between 6 to 12 characters."}
+    {sample: /^(?=.*[a-z]).*$/, err: "The password must contain at least one small letter."},
+    {sample: /^(?=.*[A-Z]).*$/, err: "The password must contain at least one capital letter."},
+    {sample: /^(?=.*[0-9]).*$/, err: "The password must contain at least one number."},
+    {sample: /^(?=.*[!@#$%^&*]).*$/, err: "The password must contain at least one symbol."},
+    {sample: /^.{6,12}$/, err: "The password length must be between 6 to 12 characters."}
 ],
 email:[
     {sample: /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/, err:"Please provide a valid email."}
@@ -50,25 +50,29 @@ const Authblock = ({item}) => {
     },[show]);
     
 
-    const verify =()=>{
-        let allgood = true;
-        Object.keys(inputdata.current[show]).map((i)=>{
-            let val = inputdata.current[show][i];
-            for(let j=0; j<Tests[i].length; j++){
-                const {sample, err} = Tests[i][j];
-                if(!sample.test(val)){
-                    handler(500,err)
-                    allgood = false;
-                    break;
+    const verify =async()=>{
+        try{
+            const allTests = Object.keys(inputdata.current[show]);
+            for( let i=0; i<allTests.length; i++ ){
+                const tests = Tests[allTests[i]];
+                for(let j=0;j<tests.length;j++){
+                    console.log(tests[j])
+                    if(!tests[j].sample.test(inputdata.current[show][allTests[i]])){
+                        handler(500,tests[j].err);
+                        return false;
+                    }
                 }
             }
-        })
-
-        return allgood;
+            return true;
+        }catch(err){
+            console.log(err);
+        }
+        
     }
 
     const signIn =async()=>{
-        if(verify() && !EXTERNAL_PROCESS){
+        let verified =await verify();
+        if(verified && !EXTERNAL_PROCESS){
             try{
                 dispatch(pushexternalProcess({msg:"singing in..."}))
                 const URL = `${import.meta.env.VITE_KEY_GATEWAY}${import.meta.env.VITE_KEY_USERSERVICE}${import.meta.env.VITE_KEY_USER_LOGIN}`;
@@ -88,7 +92,7 @@ const Authblock = ({item}) => {
                     handler(200,"successfully loggedin.")
             
             }catch(err){
-                console.log(err)
+                console.log(err?.response?.data?.err)
                 handler(err.status ,err?.response?.data?.err || err?.message || "something went wrong.")
             }finally{
                 dispatch(popexternalProcess())
@@ -97,7 +101,8 @@ const Authblock = ({item}) => {
     }
 
     const signUp =async()=>{
-        if(verify() && !EXTERNAL_PROCESS){
+        let verified =await verify();
+        if(verified && !EXTERNAL_PROCESS){
             try{
                 dispatch(pushexternalProcess({msg:"signing up..."}))
 

@@ -29,7 +29,7 @@ export const handler =(code,msg)=>{
             history.navigate(pagelocation.auth);
         break;
         default :
-        store.dispatch(addpopup({msg:"Network error!", type:1}));
+        store.dispatch(addpopup({msg:msg || "Network error!", type:1}));
         break;
     }
 }
