@@ -14,7 +14,7 @@ const { userServiceProxy } = require("./proxy/userserviceproxy");
 
 const app = express(); 
 
-const HOST = "localhost"; 
+const HOST = process.env.HOST_NAME; 
 const port = process.env.PORT || 3000; 
 
 
