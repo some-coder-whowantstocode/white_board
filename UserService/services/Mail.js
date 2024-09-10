@@ -35,25 +35,6 @@ const nodemailer = require("nodemailer");
  
 // }
 
-//sending mail with resend 
-
-// const resend = new Resend('re_123456789');
-
-
-// const sendmail = async(sub, text, email, htmlContent)=>{
-//   const { data, error } = await resend.emails.send({
-//     from: process.env.DEV_MAIL,
-//     to: email,
-//     subject: sub,
-//     html: htmlContent
-//   });
-  
-//   if (error) {
-//     return console.error({ error });
-//   }
-  
-//   console.log({ data });
-// }
 
 let transporter = nodemailer.createTransport({
   service: process.env.MAIL_SERVICE,
