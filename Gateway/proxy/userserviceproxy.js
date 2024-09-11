@@ -52,7 +52,7 @@ const userServiceProxy = async(req,res,next)=>{
 
         proxyReq.on("error",(err)=>{
           console.log(err)
-            err.message = 'server not reachable.'
+            // err.message = 'server not reachable.'
             next(err);
             
         })
