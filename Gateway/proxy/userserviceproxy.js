@@ -1,4 +1,5 @@
 const http = require('http');
+const https = require('https');
 
 const userServiceProxy = async(req,res,next)=>{
         const options = {
@@ -13,8 +14,12 @@ const userServiceProxy = async(req,res,next)=>{
             timeout:Number(process.env.TIMEOUT)
         };
 
-        
-        const proxyReq = http.request(options);
+        let proxyReq;
+        if(process.env.BUILD_LEVEL === 'production'){
+          proxyReq = https.request(options);
+        }else{
+          proxyReq = http.request(options);
+        }
         proxyReq.on('response', (response) => {
             try {
             let data = '';
@@ -54,6 +59,41 @@ const userServiceProxy = async(req,res,next)=>{
         proxyReq.end()
  
 }
+
+
+
+// createProxyMiddleware({
+//   target: process.env.TARGET,
+//   changeOrigin: true,
+//   pathRewrite: (path, req) => req.originalUrl,
+//   onProxyReq: (proxyReq, req, res) => {
+//     console.log(req)
+//     proxyReq.setHeader('Content-Type', 'application/json');
+//     proxyReq.setHeader('cookie', req.headers.cookie);
+//     proxyReq.setTimeout(Number(process.env.TIMEOUT));
+//     if (req.body) {
+//       proxyReq.write(JSON.stringify(req.body));
+//     }
+//   },
+//   onProxyRes: (proxyRes, req, res) => {
+//     let data = '';
+//     proxyRes.on('data', (chunk) => {
+//       data += chunk;
+//     });
+//     proxyRes.on('end', () => {
+//       res.status(proxyRes.statusCode || 200).send(data);
+//     });
+//   },
+//   onError: (err, req, res) => {
+//     if (err.code === 'ECONNRESET' || err.code === 'ETIMEDOUT') {
+//       res.status(408).json({ msg: 'Oops! sorry request timeout.' });
+//     } else {
+//       err.message = 'server not reachable.';
+//       next(err);
+//     }
+//   }
+// });
+
 
 module.exports = {
     userServiceProxy
