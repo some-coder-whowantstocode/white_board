@@ -30,7 +30,7 @@ const bucketlimit = 4;
 
 app.use(cookieParser());
 app.use(cors(corsOptions));
-app.use(Filter);
+// app.use(Filter);
 app.use(Ratelimiter(clients, bucketduration, bucketlimit));
 
 app.use(morgan("dev"));

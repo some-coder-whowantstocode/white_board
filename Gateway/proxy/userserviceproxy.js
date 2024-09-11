@@ -11,7 +11,8 @@ const userServiceProxy = async(req,res,next)=>{
                 'Content-Type': 'application/json',
                 'cookie':`${req.headers.cookie}`,
             },
-            timeout:Number(process.env.TIMEOUT)
+            timeout:Number(process.env.TIMEOUT),
+            // secureProtocol: 'TLSv1_2_method'
         };
 
         let proxyReq;
@@ -50,6 +51,7 @@ const userServiceProxy = async(req,res,next)=>{
         })
 
         proxyReq.on("error",(err)=>{
+          console.log(err)
             err.message = 'server not reachable.'
             next(err);
             
