@@ -1,6 +1,6 @@
 
 
-const errorhandler = (err,req,res,next)=>{
+const errorhandler = async(err,req,res,next)=>{
 
     switch (err.name) {
         case 'TokenExpiredError':

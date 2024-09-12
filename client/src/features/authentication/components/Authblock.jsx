@@ -56,7 +56,6 @@ const Authblock = ({item}) => {
             for( let i=0; i<allTests.length; i++ ){
                 const tests = Tests[allTests[i]];
                 for(let j=0;j<tests.length;j++){
-                    console.log(tests[j])
                     if(!tests[j].sample.test(inputdata.current[show][allTests[i]])){
                         handler(500,tests[j].err);
                         return false;
@@ -83,16 +82,17 @@ const Authblock = ({item}) => {
                     withCredentials: true 
                 });
                 const {user} = data;
-
+                console.log(user.verified)
                 if(!user.verified){
                     history.navigate(pagelocation.notverified);
+                    return;
                 }
                     dispatch(logIn({name:user.name,email:user.email}));
                     history.navigate(pagelocation.user)
                     handler(200,"successfully loggedin.")
             
             }catch(err){
-                console.log(err?.response?.data?.err)
+                console.log(err)
                 handler(err.status ,err?.response?.data?.err || err?.message || "something went wrong.")
             }finally{
                 dispatch(popexternalProcess())

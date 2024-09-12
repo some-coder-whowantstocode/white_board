@@ -33,7 +33,7 @@ const Notverified = () => {
   return (
     <NOTVERIFIED>
       you are not verified please check your email to find verificaiton link.
-      <button onClick={()=>history.navigate(pagelocation.canvas)}>Go back ⇾</button>
+      <button onClick={()=>history.navigate(pagelocation.auth)}>Go back ⇾</button>
     </NOTVERIFIED>
   )
 }
