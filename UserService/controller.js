@@ -58,7 +58,6 @@ const verifyUser = async(req,res,next)=>{
 }
 
 const Register = async(req, res, next) => {
-  console.log(req.body)
     const { name, email, password, persist } = req.body;
     //use bloom filter to check
     if (!name || !email || !password) {
