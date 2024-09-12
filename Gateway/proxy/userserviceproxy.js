@@ -2,10 +2,10 @@ const { createProxyMiddleware } = require('http-proxy-middleware')
 
 
 
-
+const target = process.env.TARGET || 'http://default-target-url.com';
 
 const userServiceProxy = createProxyMiddleware({
-  target: process.env.TARGET,
+  target,
   changeOrigin: true,
   logLevel: 'debug',
   on:{
