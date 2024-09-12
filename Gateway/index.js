@@ -3,8 +3,6 @@ require('express-async-errors');
 const morgan = require("morgan");
 require("dotenv").config();
 const cors = require('cors');
-const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
 
 const { Filter } = require("./middleware/filter");
 const Ratelimiter = require("./middleware/ratelimiter");
@@ -28,13 +26,11 @@ const bucketduration = 5;
 const bucketlimit = 4;
 /* clientIp =[requests] */
 
-app.use(cookieParser());
 app.use(cors(corsOptions));
-// app.use(Filter);
+app.use(Filter);
 app.use(Ratelimiter(clients, bucketduration, bucketlimit));
 
 app.use(morgan("dev"));
-app.use(bodyParser.json()); 
 app.use('/user', userServiceProxy); 
 
 app.use(ErrorHandler);
