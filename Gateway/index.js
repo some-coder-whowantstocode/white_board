@@ -15,7 +15,11 @@ const port = process.env.PORT || 3000;
 
 var corsOptions = {
     origin: process.env.Allowed_ORIGIN,
-}
+    optionsSuccessStatus: 200,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    allowedHeaders: 'Content-Type,Authorization',
+    credentials: true // Allow credentials (cookies, authorization headers, etc.)
+};
 
 const clients = new Map();
 const bucketduration = 5;
