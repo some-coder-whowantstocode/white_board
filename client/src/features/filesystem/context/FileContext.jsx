@@ -132,11 +132,7 @@ export const FileProvider =({children})=>{
 
 
     const SHARE_CONTROL = [
-        // {
-        //     name:IconBox.EXPORT_IMG.name,
-        //     icon:IconBox.EXPORT_IMG.icon,
-        //     func(){}
-        // },
+      
         {
             name:IconBox.PNG.name,
             icon:IconBox.PNG.icon,
