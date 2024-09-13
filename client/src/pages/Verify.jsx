@@ -2,15 +2,10 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { pagelocation } from '../assets/pagesheet';
-import { Tests } from '../features/authentication/components/Authblock';
 import { history } from '../App';
-import { handler } from '../helper';
-import axios from 'axios';
-import { useDispatch, useSelector } from 'react-redux';
-import { popexternalProcess, pushexternalProcess } from '../features/processes/slices/processSlice';
-import Popups from '../features/popup/components/Popups';
 import Processings from '../features/processes/components/processings';
-import { logIn } from '../features/authentication/slices/authSlice';
+import { useauth } from '../features/authentication/context/authContext';
+import Popups from '../features/popup/components/Popups';
 
 const VERIFYPAGE = styled.div`
   height: 100vh;
@@ -78,8 +73,6 @@ const OTPBTN = styled.button`
 `
 
 const Verify = () => {
-  const dispatch = useDispatch();
-  const EXTERNAL_PROCESS = useSelector(state=>state.process.externalProcesses);
   const { email } = useParams();
   const [otp, setOtp] = useState("");
   const mustinclude = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
@@ -87,6 +80,7 @@ const Verify = () => {
   const [otpBoxes, setOtpBoxes] = useState([]);
   const inputref = useRef();
   const [focused,setfocus] = useState(false);
+  const {verifycode, Tests} = useauth();
 
   useEffect(() => {
     const boxes = Array.from({ length: lengthallowed }, (_, index) => (
@@ -109,34 +103,11 @@ const Verify = () => {
     }
   }, [email]);
 
-  const verify = async () => {
-    try {
-      if(EXTERNAL_PROCESS){
-        handler(500, "please wait patiently request is being processed");
-        return;
-      }
-      if(otp.length < lengthallowed){
-        handler(500, "please provide the otp given to you.");
-        return;
-      }
-        dispatch(pushexternalProcess({ msg: "verifying user..." }));
-        const URL = `${import.meta.env.VITE_KEY_GATEWAY}${import.meta.env.VITE_KEY_USERSERVICE}${import.meta.env.VITE_KEY_USER_VERIFY}`;
-        const body = { email, otp };
-        const headers = {};
-        let {data} = await axios.post(URL, body, headers);
-        const {user} = data;
-        dispatch(logIn({name:user.name,email:user.email}));
-        history.navigate(pagelocation.auth)
-        handler(200,"verified user account.")
-    } catch (err) {
-      handler(err.status, err?.response?.data?.err || err?.message || "something went wrong.");
-    } finally {
-      dispatch(popexternalProcess());
-    }
-  };
+ 
 
   return (
     <VERIFYPAGE>
+      
       <Popups/>
       <Processings/>
       <BOX>
@@ -165,7 +136,7 @@ const Verify = () => {
         setfocus(true);
         }}>{otpBoxes}</div>
         <div>
-      <OTPBTN color='#00ffbb' hover='#06bf8e' text='#393939' onClick={()=>verify()}>verify</OTPBTN>
+      <OTPBTN color='#00ffbb' hover='#06bf8e' text='#393939' onClick={()=>verifycode(email, otp)}>verify</OTPBTN>
 
         </div>
       </BOX>

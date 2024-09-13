@@ -14,7 +14,13 @@ const canvasContext = createContext(null);
 
 export const CanvasProvider =({children})=>{    
     const AuthStatus = useSelector(state=>state.auth.authstatus)
+  const [drawingcanvas,setdrawing] = useState(null);
     
+  const canvasRef = useRef(null);
+  const pageRef = useRef(null);
+  const overCanvasRef = useRef(null);
+  const moveref = useRef(null);
+  
     const dispatch = useDispatch();
 
 
@@ -158,6 +164,10 @@ export const CanvasProvider =({children})=>{
     return (
         <canvasContext.Provider 
         value ={{
+            canvasRef, 
+            pageRef, 
+            overCanvasRef, 
+            moveref,
             MODES,
             SHAPES, 
             addshapes, 
@@ -166,7 +176,9 @@ export const CanvasProvider =({children})=>{
             controlIcon_shapes, 
             sizes, 
             setsizes,
-            sizeControl_Icons
+            sizeControl_Icons,
+            drawingcanvas,
+            setdrawing
             }}>
 
         {children}

@@ -1,10 +1,10 @@
 import { useNavigate } from 'react-router-dom';
-import { addpopup } from './features/popup/slices/popupSlice';
-import store from './store'
-import { pagelocation } from './assets/pagesheet';
+import { addpopup } from '../features/popup/slices/popupSlice';
+import store from '../store'
+import { pagelocation } from '../assets/pagesheet';
 import { createBrowserHistory } from 'history';
-import { logOut } from './features/authentication/slices/authSlice';
-import { history } from './App';
+import { logOut } from '../features/authentication/slices/authSlice';
+import { history } from '../App';
 
 
 

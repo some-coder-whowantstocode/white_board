@@ -1,5 +1,5 @@
 import { openIndexedDB } from "./createDB";
-import {handler} from '../../../helper';
+import {handler} from '../../../helper/handler';
 
 
 const removeNode = async(id,refid)=>{

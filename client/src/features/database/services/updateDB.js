@@ -3,7 +3,6 @@ import { openIndexedDB } from './createDB';
 
 const addNode = async (name) => {
     try {
-
         const db = await openIndexedDB();
         const transaction = db.transaction('Folder', 'readwrite');
         const store = transaction.objectStore('Folder');
@@ -14,7 +13,6 @@ const addNode = async (name) => {
             page:null
         };
         const request = store.add(data);
-
 
         return new Promise((resolve, reject) => {
         request.onsuccess = () =>{

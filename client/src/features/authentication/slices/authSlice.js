@@ -6,7 +6,8 @@ const authSlice = createSlice({
         rememberme:false,
         name:'auth',
         authstatus:false,
-        
+        pingTime:null,
+        pingDuration:15
     },
     reducers:{
         logIn(state,action){
@@ -45,10 +46,13 @@ const authSlice = createSlice({
         },
         change_token_memory(state){
             state.rememberme = !state.rememberme;
+        },
+        updateping(state){
+            state.pingTime = new Date().getTime();
         }
     }
 })
 
-export const { getuserData, logIn, change_token_memory, logOut, isloggedin } = authSlice.actions;
+export const { getuserData, logIn, change_token_memory, logOut, isloggedin, updateping } = authSlice.actions;
 
 export default authSlice.reducer;

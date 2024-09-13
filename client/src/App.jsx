@@ -3,8 +3,6 @@ import Canvas from './pages/Canvas.jsx';
 import Controller from './features/canvas/components/Controller.jsx'
 import { CanvasProvider } from './features/canvas/context/canvasProvider.jsx';
 import Filespace from './pages/Filespace.jsx';
-import { FileProvider } from './features/filesystem/context/FileContext.jsx';
-import { AuthProvider } from './features/authentication/context/authContext.jsx';
 import {
   Route,
   Routes,
@@ -57,28 +55,25 @@ function App() {
       
       path={pagelocation.canvas}  
       element={ 
-      <CanvasProvider>
+        <>
         <Canvas/>
         <Controller/>
-      </CanvasProvider>}
+        </>
+      }        
       >
       </Route>
 
       <Route 
       path={`/${pagelocation.filespace}`} 
       element={
-          <FileProvider>
             <Filespace/>
-          </FileProvider>
       }>
       </Route>
 
       <Route 
       path={`/${pagelocation.auth}`} 
       element={
-        <AuthProvider>
           <Auth/>
-        </AuthProvider>
       }>
       </Route>
 

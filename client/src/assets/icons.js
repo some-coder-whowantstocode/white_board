@@ -1,4 +1,4 @@
-import { FaRegCircle, FaShapes, FaFolder, FaTrash, FaHome, FaRegUserCircle, FaPlus, FaMinus  } from "react-icons/fa";
+import { FaRegCircle, FaShapes, FaFolder, FaTrash, FaRegUserCircle, FaPlus, FaMinus  } from "react-icons/fa";
 import { GoPencil } from "react-icons/go";
 import { CiUndo,CiRedo } from "react-icons/ci";
 import { IoIosMove, IoIosSave, IoMdAdd } from "react-icons/io";
@@ -7,6 +7,8 @@ import { GiHamburgerMenu } from "react-icons/gi";
 import { GiEntryDoor } from "react-icons/gi";
 import { BsFillCursorFill } from "react-icons/bs";
 import { FaShareFromSquare } from "react-icons/fa6";
+import { AiOutlineExport } from "react-icons/ai";
+import { BiSolidFileJpg, BiSolidFilePng } from "react-icons/bi";
 
 export const IconBox = {
     SHAPES:{
@@ -80,5 +82,17 @@ export const IconBox = {
     SHARE:{
         name:'share',
         icon:FaShareFromSquare
-    }
+    },
+    EXPORT_IMG:{
+        name:'Download.Whiteboard',
+        icon:AiOutlineExport
+    },
+    JPG:{
+        name:'Download.JPEG',
+        icon:BiSolidFileJpg
+    },
+    PNG:{
+        name:'Download.PNG',
+        icon:BiSolidFilePng
+    },
 }

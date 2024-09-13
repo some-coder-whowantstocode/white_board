@@ -9,10 +9,9 @@ import { addpopup } from '../features/popup/slices/popupSlice'
 import { useDispatch, useSelector } from 'react-redux'
 import axios from 'axios'
 import { isloggedin, logOut, getuserData } from '../features/authentication/slices/authSlice'
-import { handler } from '../helper'
+import { handler } from '../helper/handler'
 import { history } from '../App'
 import { popexternalProcess, pushexternalProcess } from '../features/processes/slices/processSlice'
-import { Tests } from '../features/authentication/components/Authblock'
 
 
 

@@ -10,6 +10,10 @@ const userServiceProxy = createProxyMiddleware({
   logLevel: 'debug',
   timeout:30000,
   on:{
+    proxyReq:(proxyReq,req,res)=>{
+      proxyReq.setHeader('origin', process.env.CURRENT);
+      console.log(proxyReq.getHeader('origin')); 
+    },
     error:(err,req,res)=>{
       console.log(err)
       if (err.code === 'ECONNRESET' || err.code === 'ETIMEDOUT') {

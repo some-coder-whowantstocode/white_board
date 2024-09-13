@@ -17,7 +17,7 @@ import { history } from "../App.jsx";
 import { useLocation } from "react-router-dom";
 import { isloggedin } from "../features/authentication/slices/authSlice.js";
 import Popups from "../features/popup/components/Popups.jsx";
-import { handler } from "../helper.js";
+import { handler } from "../helper/handler.js";
 import Processings from "../features/processes/components/processings.jsx";
 import { popinternalProcess, pushinternalProcess } from "../features/processes/slices/processSlice.js";
 
@@ -64,24 +64,19 @@ const Canvas = () => {
   const SELECTED = useSelector((state)=>state.shape.select);
   const PAGE = useSelector((state)=>state.shape.currentPage);
   const INTERNAL_PROCESSES = useSelector((state)=>state.process.internalProcesses);
+  const { canvasRef, pageRef, overCanvasRef, moveref, drawingcanvas, setdrawing } = useCanvas()
 
   const dispatch = useDispatch();
   const navigate = useLocation();
-
   
   useEffect(() => {
     history.navigater = navigate;
 }, [navigate]);
 
-  const canvasRef = useRef(null);
-  const pageRef = useRef(null);
-  const overCanvasRef = useRef(null);
-  const moveref = useRef(null);
 
   const [canvasmove,setmoving] = useState(false);
   const [freedraw,setdraw] = useState(false);
   const [hold,sethold] = useState(false);
-  const [drawingcanvas,setdrawing] = useState(null);
 
   const observer = new ResizeObserver(()=>{
     const elem = moveref.current;
@@ -106,10 +101,9 @@ const Canvas = () => {
         canvasData,
         shapeData
       }
-      let file = data;
       const img = canvas.toDataURL('image/png');
       const name = localStorage.getItem('whiteboard');
-      await updateNode(name,file,img);
+      await updateNode( name, data, img );
     }catch(err){
       console.log(err);
       handler(500,"error occured while saving data");
@@ -215,7 +209,7 @@ const Canvas = () => {
       return ()=>{
         clearInterval(id);
       }
-  },[drawingcanvas]);
+  },[drawingcanvas,SHAPE,CANVAS]);
 
   useEffect(()=>{
     const canvas = canvasRef.current;
@@ -236,7 +230,8 @@ const Canvas = () => {
         addNode(name);
       }else{
         const Data = await getoneNode(name);
-        if(Data){
+        if(Data.page){
+          console.log("data",Data)
           let data = Data.page;
           const { drawing, canvasData, shapeData } = data;
           setdrawing(drawing);

@@ -29,10 +29,14 @@ export const shapesSlice =createSlice({
             state.pages=[[]]
         },
         addshape(state,action){
-            let obj = action.payload;
-            Object.keys(obj).forEach(key => {
-                state[key] = obj[key];
-            });
+            const { pages, color, currentPage, minpages, maxpages, size, store } = action.payload;
+            state.pages = pages;
+            state.color = color;
+            state.currentPage = currentPage;
+            state.minpages = minpages;
+            state.maxpages = maxpages;
+            state.size = size;
+            state.store = store;
         },
         addCircle(state, action){
             const { x, y} = action.payload;
@@ -75,8 +79,8 @@ export const shapesSlice =createSlice({
                     state.pages.push([...state.pages[state.pages.length-1],Line.id]);
                     state.currentPage +=1 ;
                     state.maxpages+=1;
-                    
-                state.lineid = Line.id;
+                    const {id} = Line;
+                state.lineid = id;
             state.store[state.lineid] = Line;
 
             }else{

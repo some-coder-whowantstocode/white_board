@@ -21,7 +21,10 @@ var corsOptions = {
 
 app.use(cors(corsOptions))
 app.use(express.json());
-app.use(cookieParser())
+app.use(cookieParser());
+app.head("/",(req,res)=>{
+    res.status(200).end();
+});
 app.use('/user', userrouter);
 app.use(errorhandler)
 
