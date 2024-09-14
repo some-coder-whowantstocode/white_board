@@ -25,6 +25,30 @@ const getoneNode = async(name)=>{
 
 }
 
+const getoneFile =async(name)=>{
+    return new Promise((resolve,reject)=>{
+        openIndexedDB()
+        .then((db)=>{
+            const transanction = db.transaction('thumbnail','readonly');
+            const store = transanction.objectStore('thumbnail');
+            const oneBoard = store.index('files');
+            const getone = oneBoard.get([name]);
+
+            getone.onsuccess = ()=>{
+                resolve(getone.result)
+            }
+
+            getone.onerror =(event)=>{
+                reject('Error in indexedDB getoneNode: ',event.target.errorCode)
+            }
+
+            transanction.oncomplete =()=>{
+                db.close();
+            }
+        })
+    })
+}
+
 const getallFiles =async(file)=>{
     return new Promise(async(resolve,reject)=>{
         const db = await openIndexedDB();
@@ -68,5 +92,6 @@ const getcurrent =async(name)=>{
 export {
     getoneNode,
     getallFiles,
-    getcurrent
+    getcurrent,
+    getoneFile
 }

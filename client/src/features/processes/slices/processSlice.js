@@ -16,6 +16,7 @@ const processSlice =  createSlice({
 
         },
         pushinternalProcess(state, action){
+            console.log(action.payload)
             state.internalProcesses = action.payload.msg;
 
         },

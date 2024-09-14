@@ -66,19 +66,7 @@ export const CanvasProvider =({children})=>{
             selectable:true
         }]
 
-    const controlIcon_file_sys = [
-        {
-            icon:IconBox.SAVE.icon,
-            type:IconBox.SAVE.name,
-            func(){updateNode(localStorage.getItem('whiteboard'),canvasBoard.current.current_cache,canvasBoard.current.screenshot())}
-        },
-        {
-            icon:IconBox.CREATE.icon,
-            type:IconBox.CREATE.name,
-            
-        }
-    ]
-
+   
     const sizeControl_Icons = []
 
     const controlIcons = [

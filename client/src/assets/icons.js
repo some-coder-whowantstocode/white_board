@@ -3,12 +3,12 @@ import { GoPencil } from "react-icons/go";
 import { CiUndo,CiRedo } from "react-icons/ci";
 import { IoIosMove, IoIosSave, IoMdAdd } from "react-icons/io";
 import { MdOutlineRectangle } from "react-icons/md";
-import { GiHamburgerMenu } from "react-icons/gi";
-import { GiEntryDoor } from "react-icons/gi";
+import { GiHamburgerMenu, GiEntryDoor } from "react-icons/gi";
 import { BsFillCursorFill } from "react-icons/bs";
 import { FaShareFromSquare } from "react-icons/fa6";
 import { AiOutlineExport } from "react-icons/ai";
 import { BiSolidFileJpg, BiSolidFilePng } from "react-icons/bi";
+import { CiImport } from "react-icons/ci";
 
 export const IconBox = {
     SHAPES:{
@@ -84,15 +84,19 @@ export const IconBox = {
         icon:FaShareFromSquare
     },
     EXPORT_IMG:{
-        name:'Download.Whiteboard',
+        name:'Download Whiteboard',
         icon:AiOutlineExport
     },
+    IMPORT_IMG:{
+        name:'IMPORT',
+        icon:CiImport
+    },
     JPG:{
-        name:'Download.JPEG',
+        name:'Export JPG',
         icon:BiSolidFileJpg
     },
     PNG:{
-        name:'Download.PNG',
+        name:'Export PNG',
         icon:BiSolidFilePng
     },
 }

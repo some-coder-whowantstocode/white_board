@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { openIndexedDB } from './createDB';
+import { handler } from '../../../helper/handler';
 
 const addNode = async (name) => {
     try {
@@ -48,10 +49,10 @@ const updateNode = async(name, page,img)=>{
         const store = transanction.objectStore('Folder');
         const index = store.index('files');
         const request = index.get([name])
-        request.onsuccess = ()=> {
+        request.onsuccess = async()=> {
             const node = request.result;
             if(!node){
-                addNode(name)
+                handler(500,`!!! Looks like the data got corrupted ${name} does not exist .`)
             }
             node.page = page;
             const updateRequest = store.put(node);
@@ -78,6 +79,7 @@ const updateNode = async(name, page,img)=>{
     
         }
     } catch (error) {
+        
         handler(500, "error while updating node");
         
     }
