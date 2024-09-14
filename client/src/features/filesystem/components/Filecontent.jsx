@@ -8,8 +8,9 @@ import { history } from '../../../App.jsx'
 
 
 const File = styled.div`
-  height: 150px;
-  width: 110px;
+ height: 150px;
+ width: 120px;
+ box-sizing: border-box;
   box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
   margin: 10px;
   overflow: hidden;

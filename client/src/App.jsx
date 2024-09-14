@@ -55,10 +55,7 @@ function App() {
       
       path={pagelocation.canvas}  
       element={ 
-        <>
         <Canvas/>
-        <Controller/>
-        </>
       }        
       >
       </Route>

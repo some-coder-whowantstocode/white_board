@@ -20,13 +20,13 @@ import Popups from "../features/popup/components/Popups.jsx";
 import { handler } from "../helper/handler.js";
 import Processings from "../features/processes/components/processings.jsx";
 import { popinternalProcess, pushinternalProcess } from "../features/processes/slices/processSlice.js";
+import Controller from "../features/canvas/components/Controller.jsx";
 
 const DRAWING_PAGE = styled.div`
   height: 100%;
   width: 100%;
   max-height: 100dvh;
   overflow: hidden;
-
 `;
 
 const DRAWING_CANVAS = styled.canvas`
@@ -438,6 +438,7 @@ const Canvas = () => {
   return( <DRAWING_PAGE ref={pageRef} >
     <Popups/>
     <Processings/>
+    <Controller/>
     <OVER_CANVAS ref={overCanvasRef}/>
     <DRAWING_CANVAS  ref={canvasRef}/>
     <MOVE_BOX 

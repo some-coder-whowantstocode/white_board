@@ -16,6 +16,10 @@ const ControlBox = styled.span`
   background-color: white;
   width: fit-content;
   z-index: 2;
+  overflow: hidden;
+  @media screen and (max-width: 500px) {
+    left: 20px;
+  }
 `;
 
 const Panel = styled.div`
@@ -26,6 +30,16 @@ const Panel = styled.div`
   height: fit-content;
   border-radius: 2px 2px 10px 10px;
   box-shadow: 0px 3px 9px 0px rgba(0, 0, 0, 0.75);
+  @media screen and (max-width: 780px) {
+    width: 100vw;
+    border-radius: 0px;
+  }
+
+  @media screen and (max-width: 500px) {
+    flex-direction: column;
+    width: fit-content;
+    height: 100vh;
+  }
 `;
 
 

@@ -43,7 +43,7 @@ const Movebottom = keyframes`
     }
     100% {
         /* left: 50%; */
-        top: 60%;
+        top: 70%;
         height: 100%;
         z-index: 1;
     }

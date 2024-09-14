@@ -61,6 +61,7 @@ const Add = styled.div`
   height: 150px;
   width: 120px;
   color: #767676;
+ box-sizing: border-box;
   background-color: #ffffff1c;
   box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
   margin: 10px;

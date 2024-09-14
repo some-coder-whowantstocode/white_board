@@ -117,7 +117,12 @@ const Authbox_part = styled.div`
     }
     @media screen and (max-width: 700px){
     padding: 1rem;
+    width:70%;
     }
+    @media screen and (max-width: 500px){
+    width:98%;
+    }
+  
 `
 
 const HIDDEN_AUTH_PART = styled.div`

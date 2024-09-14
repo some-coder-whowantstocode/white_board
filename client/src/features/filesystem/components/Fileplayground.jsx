@@ -6,13 +6,16 @@ import Filecontent from './Filecontent';
 
 
 const Files = styled.div`
-  background-color: #cdcdcd9e;
   width: 100%;
   display: flex;
   flex-wrap: wrap;
-  min-height: 100vh;
-  justify-content: flex-start;
+  flex: 1 1 120px;
+  height: fit-content;
+  /* display: grid; */
+  /* grid-template-columns: repeat(auto-fill,minmax(160px, 1fr)); */
+  /* min-height: 100vh; */
   overflow-y: scroll;
+  /* align-items: flex-start */
 `
 
 const Fileplayground = () => {
