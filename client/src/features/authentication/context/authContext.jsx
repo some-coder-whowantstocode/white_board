@@ -100,15 +100,16 @@ export const AuthProvider =({children})=>{
     }
 
     const signIn =async()=>{
-        if(EXTERNAL_PROCESS){
-            handler(500, "please wait patiently one request is being processed");
-            return;
-            }
-        dispatch(pushexternalProcess({msg:"singing in..."}))
-        const { email, password } = inputdata.current.signin;
-        let verified =await verify(['email','password'],[email,password]);
-        if(verified ){
+        
             try{
+                if(EXTERNAL_PROCESS){
+                    handler(500, "please wait patiently one request is being processed");
+                    return;
+                    }
+                dispatch(pushexternalProcess({msg:"singing in..."}))
+                const { email, password } = inputdata.current.signin;
+                let verified =await verify(['email','password'],[email,password]);
+                if(verified ){
                 const URL = `${import.meta.env.VITE_KEY_GATEWAY}${import.meta.env.VITE_KEY_USERSERVICE}${import.meta.env.VITE_KEY_USER_LOGIN}`;
                 const headers = {}
                 const body = {...inputdata.current[show],persist:AUTH.rememberme}
@@ -124,6 +125,7 @@ export const AuthProvider =({children})=>{
                     dispatch(logIn({name:user.name,email:user.email}));
                     history.navigate(pagelocation.user)
                     handler(200,"successfully loggedin.")
+        }
             
             }catch(err){
                 console.log(err)
@@ -131,10 +133,11 @@ export const AuthProvider =({children})=>{
             }finally{
                 dispatch(popexternalProcess())
             }
-        }
     }
 
     const signUp =async()=>{
+        try{
+
         if(EXTERNAL_PROCESS){
             handler(500, "please wait patiently one request is being processed");
             return;
@@ -143,7 +146,6 @@ export const AuthProvider =({children})=>{
         const {name, email, password} = inputdata.current.signup
         let verified =await verify(['name','email','password'],[name,email,password]);
         if(verified){
-            try{
 
                 const URL = `${import.meta.env.VITE_KEY_GATEWAY}${import.meta.env.VITE_KEY_USERSERVICE}${import.meta.env.VITE_KEY_USER_REGISTER}`;
                 const headers = {}
@@ -154,13 +156,14 @@ export const AuthProvider =({children})=>{
                 });
                 handler(200,"successfully signed up.")
                     history.navigate(pagelocation.notverified);
+        }
+
             }catch(err){
                 handler(err.status ,err?.response?.data?.err || err?.message || "something went wrong.")
 
             }finally{
                 dispatch(popexternalProcess())
             }
-        }
     }
 
     const changepass = async(email)=>{

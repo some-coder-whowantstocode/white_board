@@ -23,9 +23,9 @@ import { popinternalProcess, pushinternalProcess } from "../features/processes/s
 import Controller from "../features/canvas/components/Controller.jsx";
 
 const DRAWING_PAGE = styled.div`
-  height: 100%;
-  width: 100%;
-  max-height: 100dvh;
+  height: 100dvh;
+  width: 100dvw;
+  /* max-height: 100dvh; */
   overflow: hidden;
 `;
 
@@ -42,6 +42,7 @@ const OVER_CANVAS = styled.canvas`
   top: 0;
   left: 0;
   background-color: transparent;
+  touch-action: none;
 `
 
 const MOVE_BOX = styled.div`
@@ -350,25 +351,22 @@ const Canvas = () => {
   useEffect(()=>{
     draw()
   },[SCALE,hold])
-
-  useEffect(()=>{
+  
+  useEffect(() => {
     try {
       const overcanvas = overCanvasRef.current;
-
-    const fps = 0;
-    let counter = 0;
-
-    
-
-    const handledown =()=>{
-      switch(MODE){
-        case 0:
-          {
-            overCanvasredraw()
-            let x = (mouse.x-  CANVAS.x ) /SCALE , y = (mouse.y- CANVAS.y)/SCALE  ;
-            dispatch(addLine({x,y}));
+      const fps = 0;
+      let counter = 0;
+  
+      const handledown = (e) => {
+        console.log(e)
+        switch (MODE) {
+          case 0:
+            overCanvasredraw();
+            let x = (mouse.x - CANVAS.x) / SCALE,
+              y = (mouse.y - CANVAS.y) / SCALE;
+            dispatch(addLine({ x, y }));
             setdraw(true);
-            // draw()
             const canvas = canvasRef.current;
             const overcontext = canvas.getContext('2d');
             overcontext.beginPath();
@@ -376,120 +374,115 @@ const Canvas = () => {
             overcontext.lineJoin = 'round';
             overcontext.lineWidth = SHAPE.linewidth * SCALE;
             overcontext.strokeStyle = SHAPE.color;
-            overcontext.moveTo(mouse.x,mouse.y);
-            overcontext.stroke()
-          }
-        break;
-
-        case 1:
-          {
-            overCanvasredraw()
-
-            let x = (mouse.x - CANVAS.x ) / SCALE;
-            let y = (mouse.y - CANVAS.y ) / SCALE;
-            dispatch(select({x, y}));
+            overcontext.moveTo(mouse.x, mouse.y);
+            overcontext.stroke();
+            break;
+  
+          case 1:
+            overCanvasredraw();
+            let x1 = (mouse.x - CANVAS.x) / SCALE;
+            let y1 = (mouse.y - CANVAS.y) / SCALE;
+            dispatch(select({ x: x1, y: y1 }));
             draw();
-            sethold(prevstate=>!prevstate);
-
-          }
-        break;
-
-        case 2:
-          overCanvasredraw()
-          setmoving(true);
-          // redraw()
-        break;
-      }
-    }
-
-    const handleup =()=>{
-      switch(MODE){
-        case 0:
-          const line = SHAPE.store[SHAPE.lineid];
-          if(line){
-            let w = line.border.w - line.border.x , h = line.border.h - line.border.y;
-          }
-          setdraw(false);
-          dispatch(endLine());
-
-          const overcanvas = overCanvasRef.current;
-          const overcontext = overcanvas.getContext('2d');
-          overcontext.closePath();
-          clearBoard(overcontext);
-          draw();
-        break;
-
-        case 1:
-          {
-            sethold(false);
-            if(hold){
-              draw();
-
+            sethold((prevstate) => !prevstate);
+            break;
+  
+          case 2:
+            overCanvasredraw();
+            setmoving(true);
+            break;
+        }
+      };
+  
+      const handleup = (e) => {
+        switch (MODE) {
+          case 0:
+            const line = SHAPE.store[SHAPE.lineid];
+            if (line) {
+              let w = line.border.w - line.border.x,
+                h = line.border.h - line.border.y;
             }
-          }
-        break;
-
-        case 2:
-          setmoving(false);
-          canvasmove && draw()
-        break;
-      }
-    }
-
-    const handleMove =(e)=>{
-      if(counter < fps){
-        counter += 1;
-        return;
-      }
-      counter = 0;
-      dispatch(update({x:e.clientX,y:e.clientY}));
-      switch(MODE){
-        case 0:
-          {
-            if(freedraw){
+            setdraw(false);
+            dispatch(endLine());
+            const overcontext = overcanvas.getContext('2d');
+            overcontext.closePath();
+            clearBoard(overcontext);
+            draw();
+            break;
+  
+          case 1:
+            sethold(false);
+            if (hold) {
+              draw();
+            }
+            break;
+  
+          case 2:
+            setmoving(false);
+            canvasmove && draw();
+            break;
+        }
+      };
+  
+      const handleMove = (e) => {
+        if (counter < fps) {
+          counter += 1;
+          return;
+        }
+        counter = 0;
+        dispatch(update({ x: e.clientX || e.targetTouches[0].clientX, y: e.clientY || e.targetTouches[0].clientY}));
+        switch (MODE) {
+          case 0:
+            if (freedraw) {
               DrawLine();
             }
-          }
-        break;
-
-        case 1:
-          if(hold && SHAPE.select){
-            dispatch(updateLine({i:e.movementX,j:e.movementY}));
-            // overCanvasredraw();
-          }
-        break;
-
-        case 2:
-          if(canvasmove){
-            dispatch(move({x:e.movementX,y:e.movementY}));
-            createBoard(canvasRef.current);
-            // redraw();
-          }
-        break;
-      }
-    }
-
-    window.addEventListener('mousemove',handleMove);
-    overcanvas.addEventListener('mousedown',handledown);
-    window.addEventListener('mouseup',handleup);
-    window.addEventListener('touchmove',handleMove);
-    overcanvas.addEventListener('touchdown',handledown);
-    window.addEventListener('touchup',handleup);
-    return()=>{
-      window.removeEventListener('mousemove',handleMove);
-      overcanvas.removeEventListener('mousedown',handledown);
-    window.removeEventListener('mouseup',handleup);
-    window.removeEventListener('touchmove',handleMove);
-    overcanvas.removeEventListener('touchdown',handledown);
-  window.removeEventListener('touchup',handleup);
-    }
+            break;
+  
+          case 1:
+            if (hold && SHAPE.select) {
+              dispatch(updateLine({ i: e.movementX, j: e.movementY }));
+            }
+            break;
+  
+          case 2:
+            if (canvasmove) {
+              dispatch(move({ x: e.movementX, y: e.movementY }));
+              createBoard(canvasRef.current);
+            }
+            break;
+        }
+      };
+  
+      window.addEventListener('mousemove', handleMove);
+      overcanvas.addEventListener('mousedown', handledown);
+      window.addEventListener('mouseup', handleup);
+      window.addEventListener('touchmove',(e)=>{
+        e.preventDefault(); 
+        handleMove(e)
+        });
+      overcanvas.addEventListener('touchstart', (e)=>{
+        e.preventDefault(); 
+        handledown(e)
+        });
+      window.addEventListener('touchend',(e)=>{
+        e.preventDefault(); 
+        handleup(e)
+        });
+  
+      return () => {
+        window.removeEventListener('mousemove', handleMove);
+        overcanvas.removeEventListener('mousedown', handledown);
+        window.removeEventListener('mouseup', handleup);
+        window.removeEventListener('touchmove', handleMove);
+        overcanvas.removeEventListener('touchstart', handledown);
+        window.removeEventListener('touchend', handleup);
+      };
     } catch (error) {
-      console.log(err);
-      handler(500)
+      console.log(error);
+      handler(500);
     }
-    
-  },[MODE,SCALE,canvasmove,overCanvasredraw,draw,redraw,overCanvasRef])
-
+  }, [MODE, SCALE, canvasmove, overCanvasredraw, draw, redraw, overCanvasRef, canvasRef]);
+  
   return( <DRAWING_PAGE ref={pageRef} >
     <Popups/>
     <Processings/>

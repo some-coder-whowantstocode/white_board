@@ -8,8 +8,8 @@ import {
 
 const Authpage = styled.div`
     background-color: #c5d4e4;
-    width: 100vw;
-    height: 100vh;
+    width: 100dvw;
+    height: 100dvh;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -47,7 +47,6 @@ const Styledbackground = styled.div`
     transition: all 0.5s;
     top: 0px;
     background-color: #7724e2;
-    z-index: 1;
     ${
         props=> props.show === 'signin' ?
 
