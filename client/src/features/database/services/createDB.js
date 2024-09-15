@@ -16,9 +16,9 @@ const openIndexedDB = ()=>{
     request.onupgradeneeded =()=>{
         try{
             const db = request.result;
-            const files = db.createObjectStore('Folder',{ keyPath : "id" });
+            const files = db.createObjectStore('Folder',{ keyPath : "name" });
             files.createIndex('files',['name'],{ unique : true });
-            const thumnails = db.createObjectStore('thumbnail',{ keyPath : "id" });
+            const thumnails = db.createObjectStore('thumbnail',{ keyPath : "name" });
             thumnails.createIndex('files',['name'],{ unique : true });
         }catch(err){
         reject("Error opening database: " + err);

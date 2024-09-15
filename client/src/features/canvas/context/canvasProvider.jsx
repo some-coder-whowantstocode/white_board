@@ -38,8 +38,6 @@ export const CanvasProvider =({children})=>{
     }
     
     const canvasBoard = useRef(null);
-    // const [currentMode, changeMode]  = useState({mode:MODES.Draw,shape:SHAPES.NONE});
-    // const mouse = useRef({x:0,y:0,draw:false});
 
     const addshapes = (val)=>{
         if(canvasBoard.current){
@@ -88,7 +86,10 @@ export const CanvasProvider =({children})=>{
 
         {
             icon:IconBox.UNDO.icon,
-            func(){dispatch(undo())},
+            func(){
+                console.log('undo')
+                dispatch(undo())
+            },
             type:IconBox.UNDO.name
         },
 

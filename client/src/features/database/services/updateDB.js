@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { openIndexedDB } from './createDB';
 import { handler } from '../../../helper/handler';
+import { removeNode } from './deleteDB';
 
 const addNode = async (name) => {
     try {
@@ -44,15 +45,23 @@ const addNode = async (name) => {
 
 const updateNode = async(name, page,img)=>{
     try {
+        if(!name || !page || !img ){
+            handler(500,"something went wrong.");
+            return;
+        }
         const db = await openIndexedDB();
         const transanction = db.transaction('Folder','readwrite');
         const store = transanction.objectStore('Folder');
         const index = store.index('files');
+        console.log(name)
         const request = index.get([name])
         request.onsuccess = async()=> {
             const node = request.result;
             if(!node){
-                handler(500,`!!! Looks like the data got corrupted ${name} does not exist .`)
+                handler(500,`!!! Looks like the data got corrupted ${name} does not exist .`);
+                await removeNode(name);
+                localStorage.removeItem("whiteboard");
+                return;
             }
             node.page = page;
             const updateRequest = store.put(node);
@@ -61,8 +70,15 @@ const updateNode = async(name, page,img)=>{
                 const store2 = transaction2.objectStore('thumbnail');
                 const index2 = store2.index('files');
                 const request2 = index2.get([name]);
-                request2.onsuccess = ()=>{
+                request2.onsuccess = async()=>{
                     const thumbnail = request2.result;
+                    if(!thumbnail){
+                        handler(500,`!!! Looks like the data got corrupted ${name} does not exist .`);
+                        await removeNode(name);
+                        localStorage.removeItem("whiteboard");
+
+                        return;
+                    }
                     thumbnail.img = img;
                     const updatereq = store2.put(thumbnail);
     
@@ -79,7 +95,7 @@ const updateNode = async(name, page,img)=>{
     
         }
     } catch (error) {
-        
+        console.log(error)
         handler(500, "error while updating node");
         
     }

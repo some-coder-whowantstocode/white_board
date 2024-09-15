@@ -31,6 +31,7 @@ export const canvasSlice = createSlice({
         },
         addcanvas(state,action){
             let obj = action.payload;
+            if(!obj || typeof obj !== 'object') return;
             Object.keys(obj).forEach(key => {
                 state[key] = obj[key];
             });

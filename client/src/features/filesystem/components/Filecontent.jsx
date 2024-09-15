@@ -67,7 +67,7 @@ const Filecontent = ({data}) => {
 
     const deletefile = async()=>{
         try{
-            await removeNode(data.canvasid,data.id);
+            await removeNode(data.name);
             await getFiles();
             // console.log(data)
         }catch(err){

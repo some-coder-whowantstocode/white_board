@@ -2,6 +2,10 @@ import { openIndexedDB } from "./createDB";
 
 const getoneNode = async(name)=>{
     return new Promise((resolve,reject)=>{
+        if(!name){
+            reject("something went wrong.");
+            return;
+        }
         openIndexedDB()
         .then((db)=>{
             const transanction = db.transaction('Folder','readonly');
@@ -27,6 +31,10 @@ const getoneNode = async(name)=>{
 
 const getoneFile =async(name)=>{
     return new Promise((resolve,reject)=>{
+        if(!name){
+            reject("something went wrong.");
+            return;
+        }
         openIndexedDB()
         .then((db)=>{
             const transanction = db.transaction('thumbnail','readonly');

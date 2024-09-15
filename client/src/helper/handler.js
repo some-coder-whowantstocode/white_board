@@ -15,7 +15,7 @@ export const handler =(code,msg)=>{
             store.dispatch(addpopup({msg:msg || "Successfully exicuted", type:0}));
         break;
         case 500 :
-            store.dispatch(addpopup({msg:msg || "Something went wrong please try again", type:1}));
+            store.dispatch(addpopup({msg:msg || "Something went wrong ", type:1}));
         break;
         case 400 :
             store.dispatch(addpopup({msg:msg || "Invalid credentials.", type:1}));

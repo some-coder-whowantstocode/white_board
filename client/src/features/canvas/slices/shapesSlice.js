@@ -30,13 +30,13 @@ export const shapesSlice =createSlice({
         },
         addshape(state,action){
             const { pages, color, currentPage, minpages, maxpages, size, store } = action.payload;
-            state.pages = pages;
-            state.color = color;
-            state.currentPage = currentPage;
-            state.minpages = minpages;
-            state.maxpages = maxpages;
-            state.size = size;
-            state.store = store;
+            pages && (state.pages = pages);
+            color && (state.color = color);
+            currentPage && (state.currentPage = Number(currentPage));
+            minpages && (state.minpages = Number(minpages));
+            maxpages && (state.maxpages = Number(maxpages));
+            size && (state.size = size);
+            store && (state.store = store);
         },
         addCircle(state, action){
             const { x, y} = action.payload;
@@ -187,7 +187,7 @@ export const shapesSlice =createSlice({
         },
         undo(state){
             if(state.minpages < state.currentPage){
-                state.currentPage -= 1;
+                state.currentPage = state.currentPage - 1;
             }
         },
         redo(state){
