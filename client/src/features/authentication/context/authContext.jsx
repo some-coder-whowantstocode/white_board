@@ -67,15 +67,18 @@ export const AuthProvider =({children})=>{
 
     const verify =async(keys,values)=>{
         try{
-            for(let i=0;i<keys.length;i++){
-                const tests = Tests[keys[i]];
-                for(let j=0;j<tests.length;j++){
-                    if(!tests[j].sample.test(values[i])){
-                        handler(500,tests[j].err);
-                        return false;
+            if(Array.isArray(keys) && Array.isArray(values)){
+                for(let i=0;i<keys.length;i++){
+                    const tests = Tests[keys[i]];
+                    for(let j=0;j<tests.length;j++){
+                        if(!tests[j].sample.test(values[i])){
+                            handler(500,tests[j].err);
+                            return false;
+                        }
                     }
                 }
             }
+            
             if(AUTH.pingTime){
                 let currtime = new Date().getTime();
                 if((AUTH.pingTime - currtime) < AUTH.pingDuration){
@@ -85,7 +88,6 @@ export const AuthProvider =({children})=>{
             
             const working = await userServiceping();
             if(!working){
-                
                 handler(500,"Due to free hosting server is inactive right now  it will take some time to work please try again later.")
                 return false;
             }
@@ -98,11 +100,15 @@ export const AuthProvider =({children})=>{
     }
 
     const signIn =async()=>{
+        if(EXTERNAL_PROCESS){
+            handler(500, "please wait patiently one request is being processed");
+            return;
+            }
+        dispatch(pushexternalProcess({msg:"singing in..."}))
         const { email, password } = inputdata.current.signin;
         let verified =await verify(['email','password'],[email,password]);
-        if(verified && !EXTERNAL_PROCESS){
+        if(verified ){
             try{
-                dispatch(pushexternalProcess({msg:"singing in..."}))
                 const URL = `${import.meta.env.VITE_KEY_GATEWAY}${import.meta.env.VITE_KEY_USERSERVICE}${import.meta.env.VITE_KEY_USER_LOGIN}`;
                 const headers = {}
                 const body = {...inputdata.current[show],persist:AUTH.rememberme}
@@ -129,11 +135,15 @@ export const AuthProvider =({children})=>{
     }
 
     const signUp =async()=>{
+        if(EXTERNAL_PROCESS){
+            handler(500, "please wait patiently one request is being processed");
+            return;
+            }
+        dispatch(pushexternalProcess({msg:"signing up..."}))
         const {name, email, password} = inputdata.current.signup
         let verified =await verify(['name','email','password'],[name,email,password]);
-        if(verified && !EXTERNAL_PROCESS){
+        if(verified){
             try{
-                dispatch(pushexternalProcess({msg:"signing up..."}))
 
                 const URL = `${import.meta.env.VITE_KEY_GATEWAY}${import.meta.env.VITE_KEY_USERSERVICE}${import.meta.env.VITE_KEY_USER_REGISTER}`;
                 const headers = {}
@@ -155,7 +165,12 @@ export const AuthProvider =({children})=>{
 
     const changepass = async(email)=>{
         try{
-            if(EXTERNAL_PROCESS) return;
+            if(EXTERNAL_PROCESS){
+                handler(500, "please wait patiently one request is being processed");
+                return;
+                }
+            dispatch(pushexternalProcess({msg:"singing in..."}))
+            await verify();
             if(!email){
                 handler(500,"please enter email.");
                 return;
@@ -167,12 +182,6 @@ export const AuthProvider =({children})=>{
                     return;
                 }
             }
-            const working = await userServiceping();
-            if(!working){
-                handler(500,"Due to free hosting server is inactive right now  it will take some time to work please try again later.")
-                return;
-            }
-            dispatch(pushexternalProcess({msg:"singing in..."}))
             const URL = `${import.meta.env.VITE_KEY_GATEWAY}${import.meta.env.VITE_KEY_USERSERVICE}${import.meta.env.VITE_KEY_USER_FORGOT_PASS}`;
             const body = {
                 email
@@ -190,7 +199,12 @@ export const AuthProvider =({children})=>{
 
     const resetpass = async(password,token)=>{
         try{
-            if(EXTERNAL_PROCESS) return;
+            if(EXTERNAL_PROCESS){
+                handler(500, "please wait patiently one request is being processed");
+                return;
+                }
+            dispatch(pushexternalProcess({msg:"singing in..."}))
+            await verify();
             if(!password){
                 handler(500,"please enter password.");
                 return;
@@ -202,14 +216,7 @@ export const AuthProvider =({children})=>{
                 break;
                 }
             }
-
-            const working = await userServiceping();
-            if(!working){
-                handler(500,"Due to free hosting server is inactive right now  it will take some time to work please try again later.")
-                return;
-            }
             
-            dispatch(pushexternalProcess({msg:"singing in..."}))
             const URL = `${import.meta.env.VITE_KEY_GATEWAY}${import.meta.env.VITE_KEY_USERSERVICE}${import.meta.env.VITE_KEY_USER_CHANGE_PASS}/${token}`;
             const body = {
                 password
@@ -228,15 +235,16 @@ export const AuthProvider =({children})=>{
 
     const verifycode = async (email,otp) => {
         try {
-          if(EXTERNAL_PROCESS){
-            handler(500, "please wait patiently request is being processed");
+            if(EXTERNAL_PROCESS){
+            handler(500, "please wait patiently one request is being processed");
             return;
-          }
-          if(otp.length < lengthallowed){
+            }
+            dispatch(pushexternalProcess({ msg: "verifying user..." }));
+            await verify();
+            if(otp.length < lengthallowed){
             handler(500, "please provide the otp given to you.");
             return;
-          }
-            dispatch(pushexternalProcess({ msg: "verifying user..." }));
+            }
             const URL = `${import.meta.env.VITE_KEY_GATEWAY}${import.meta.env.VITE_KEY_USERSERVICE}${import.meta.env.VITE_KEY_USER_VERIFY}`;
             const body = { email, otp };
             const headers = {};

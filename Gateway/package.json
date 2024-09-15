@@ -1,6 +1,7 @@
 {
+  "license":"MIT",
   "scripts": {
-    "start": "nodemon index.js"
+    "start": "npm index.js"
   },
   "dependencies": {
     "cors": "^2.8.5",

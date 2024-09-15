@@ -11,11 +11,7 @@ const Files = styled.div`
   flex-wrap: wrap;
   flex: 1 1 120px;
   height: fit-content;
-  /* display: grid; */
-  /* grid-template-columns: repeat(auto-fill,minmax(160px, 1fr)); */
-  /* min-height: 100vh; */
   overflow-y: scroll;
-  /* align-items: flex-start */
 `
 
 const Fileplayground = () => {

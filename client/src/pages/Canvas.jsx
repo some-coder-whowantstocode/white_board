@@ -87,7 +87,7 @@ const Canvas = () => {
 
   const SaveDrawing =async()=>{
     try{
-     
+      if(INTERNAL_PROCESSES) return;
       const canvas = canvasRef.current;
       const context = canvas.getContext('2d');
       const {x, y, scale, height, width, background} = CANVAS;

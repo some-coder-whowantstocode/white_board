@@ -15,15 +15,11 @@ Feature	Description
 | Feature | Description |
 |---------|-------------|
 | microservice | Each part of the backend is managed separately. |
-| Real-Time Collaboration | Multiple users can draw on the canvas simultaneously. |
-| WebSocket Integration | Ensures instant updates and synchronization across all connected clients. |
 | Stylish UI | The application uses React Styled Components for a modern and responsive user interface |
 | User-Friendly Interface | Intuitive and responsive design for easy use. |
 | Drawing Tools | Includes various drawing tools like pen, eraser, and color picker. |
-| Member list | Users can view the list of members in the room |
-| Invitation link | Users can generate an invitation link to invite others to join the room |
-| Video call waiting room | Users can go to a waiting room before starting a video call |
 | Error notifications | A custom box will notify users about any errors or mistakes while using the app |
+| Sharing work | User can Export their work and send to their friends and can import other's work too |
 
 ## Running Locally
 

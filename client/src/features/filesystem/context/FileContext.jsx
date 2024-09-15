@@ -9,6 +9,7 @@ import { coreModuleName } from "@reduxjs/toolkit/query";
 import { getoneFile } from "../../database/services/readDB";
 import { popinternalProcess, pushinternalProcess } from "../../processes/slices/processSlice";
 import store from "../../../store";
+import { useSelector } from "react-redux";
 
 const fileContext = createContext(null);
 
@@ -17,7 +18,8 @@ export const FileProvider =({children})=>{
     const [width,setwidth] = useState(250);
     const [currentFiles,setFiles] = useState([]);
     const width_limit = {max:300,min:200,logo:70}
-
+    const INTERNAL_PROCESSES = useSelector((state)=>state.process.internalProcesses);
+    
 
     const BurgerMenu = {
         icon:IconBox.MENU.icon,
@@ -42,7 +44,12 @@ export const FileProvider =({children})=>{
     }
 
     const DownloadImage = async(type, height, width)=>{
+        
         try {
+            if(INTERNAL_PROCESSES){
+                handler(500, "please wait patiently one request is being processed");
+                return;
+                }
             store.dispatch(pushinternalProcess({msg:'Downloading...'}));
             let name = localStorage.getItem('whiteboard');
         if(!name){
@@ -75,55 +82,56 @@ export const FileProvider =({children})=>{
                     a.download = file.name;
                     a.click();
                     window.URL.revokeObjectURL(fileurl);
-                    return;
+                }else{
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    canvas.height = drawing.height;
+                    canvas.width = drawing.width;
+                    ctx.putImageData(drawing,0,0);
+                    const newcanvas = document.createElement('canvas');
+                    const newctx = newcanvas.getContext('2d');
+                    newcanvas.width = width;
+                    newcanvas.height = height;
+            
+                    newctx.drawImage(canvas,0,0,width,height);
+    
+                    switch(type){
+                        case "png":
+                            {
+                                const resizedImageData = newcanvas.toDataURL('image/png');
+            
+                                const a = document.createElement('a');
+                                a.href = resizedImageData;
+                                a.download = "whiteboard img.png";
+                                a.click();
+                            }
+                        break;
+    
+                        case "jpg":
+                            {
+                                const resizedImageData = newcanvas.toDataURL('image/jpeg');
+            
+                                const a = document.createElement('a');
+                                a.href = resizedImageData;
+                                a.download = `${name}.jpg`;
+                                a.click();
+                            }
+                        break;
+    
+                        default:
+                            {
+                                const resizedImageData = newcanvas.toDataURL('image/png');
+            
+                                const a = document.createElement('a');
+                                a.href = resizedImageData;
+                                a.download = `${coreModuleName}.png`;
+                                a.click();
+                            }
+                        break;
+            
+            }
                 }
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                canvas.height = drawing.height;
-                canvas.width = drawing.width;
-                ctx.putImageData(drawing,0,0);
-                const newcanvas = document.createElement('canvas');
-                const newctx = newcanvas.getContext('2d');
-                newcanvas.width = width;
-                newcanvas.height = height;
-        
-                newctx.drawImage(canvas,0,0,width,height);
-
-                switch(type){
-                    case "png":
-                        {
-                            const resizedImageData = newcanvas.toDataURL('image/png');
-        
-                            const a = document.createElement('a');
-                            a.href = resizedImageData;
-                            a.download = "whiteboard img.png";
-                            a.click();
-                        }
-                    break;
-
-                    case "jpg":
-                        {
-                            const resizedImageData = newcanvas.toDataURL('image/jpeg');
-        
-                            const a = document.createElement('a');
-                            a.href = resizedImageData;
-                            a.download = `${name}.jpg`;
-                            a.click();
-                        }
-                    break;
-
-                    default:
-                        {
-                            const resizedImageData = newcanvas.toDataURL('image/png');
-        
-                            const a = document.createElement('a');
-                            a.href = resizedImageData;
-                            a.download = `${coreModuleName}.png`;
-                            a.click();
-                        }
-                    break;
-        
-        }
+        handler(200,"Export successful."); 
         } catch (error) {
             console.log(error);
             handler(500,"something went wrong while downloading");
@@ -135,6 +143,11 @@ export const FileProvider =({children})=>{
 
     const ImportImage = async()=>{
         try {
+        if(INTERNAL_PROCESSES){
+            handler(500, "please wait patiently one request is being processed");
+            return;
+            }
+        store.dispatch(pushinternalProcess("Importing...."));
         const inputbox = document.createElement('input');
         inputbox.type = 'file';
         inputbox.click();
@@ -172,13 +185,16 @@ export const FileProvider =({children})=>{
             reader.onerror =function(err){
                 console.log(err);
             handler(500,"something went wrong while processing request")
+            return;
             }
             reader.readAsText(selected_file);
-            
+            handler(200,"successfully imported image"); 
         }
         } catch (error) {
             console.log(error);
             handler(500,"something went wrong while processing request")
+        }finally{
+            store.dispatch(popinternalProcess());
         }
         
     }
