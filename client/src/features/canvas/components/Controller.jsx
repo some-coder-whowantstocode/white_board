@@ -17,6 +17,8 @@ const ControlBox = styled.span`
   width: fit-content;
   z-index: 2;
   overflow: hidden;
+  box-shadow: 0px 3px 9px 0px rgba(0, 0, 0, 0.75);
+
   @media screen and (max-width: 500px) {
     left: 20px;
   }
