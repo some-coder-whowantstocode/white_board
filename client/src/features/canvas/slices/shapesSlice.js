@@ -104,6 +104,7 @@ export const shapesSlice =createSlice({
 
         },
         endLine(state,action){
+            if(!state.lineid) return;
             const line = state.store[state.lineid];
             if(line){
             line.border.w = line.border.w - line.border.x;

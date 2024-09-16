@@ -191,6 +191,7 @@ const Canvas = () => {
     try {
       
       const canv = canvasRef.current;
+      if(!canv) return;
       let canvas = canv.getContext('2d') 
       createBoard(canv);
       let arr = SHAPE.pages[PAGE-1];
@@ -355,11 +356,11 @@ const Canvas = () => {
   useEffect(() => {
     try {
       const overcanvas = overCanvasRef.current;
-      const fps = 0;
-      let counter = 0;
+      const starttime = new Date().getTime();
+      const fps = 500;
+      let counter =  new Date().getTime();
   
       const handledown = (e) => {
-        console.log(e)
         switch (MODE) {
           case 0:
             overCanvasredraw();
@@ -424,13 +425,19 @@ const Canvas = () => {
         }
       };
   
-      const handleMove = (e) => {
-        if (counter < fps) {
-          counter += 1;
-          return;
+      const handleMove = (e,type) => {
+        let x,y;
+        if(type==='touch'){
+          console.log(e)
+          let touch = e.touches[0];
+          x =  touch.pageX;
+          y = touch.pageY;
+          if(mouse.x === x && mouse.y === y) return;
+        }else{
+          x =  e.clientX ;
+          y = e.clientY ;
         }
-        counter = 0;
-        dispatch(update({ x: e.clientX || e.targetTouches[0].clientX, y: e.clientY || e.targetTouches[0].clientY}));
+        dispatch(update({ x, y}));
         switch (MODE) {
           case 0:
             if (freedraw) {
@@ -458,14 +465,32 @@ const Canvas = () => {
       window.addEventListener('mouseup', handleup);
       window.addEventListener('touchmove',(e)=>{
         e.preventDefault(); 
-        handleMove(e)
+        if (counter - starttime >= fps) {
+          counter = new Date().getTime();
+          return;
+        }
+        counter = 0;
+        // console.log('hi')
+        handleMove(e,'touch')
+        // it does not stop once started
         });
       overcanvas.addEventListener('touchstart', (e)=>{
         e.preventDefault(); 
+        let touch = e.touches[0];
+        const x =  touch.pageX;
+        const y = touch.pageY;
+        console.log(x,y,e)
+        dispatch(update({x,y}));
         handledown(e)
         });
-      window.addEventListener('touchend',(e)=>{
+      overcanvas.addEventListener('touchend',(e)=>{
         e.preventDefault(); 
+        console.log('up')
+        handleup(e)
+        });
+      overcanvas.addEventListener('touchcancel',(e)=>{
+        e.preventDefault(); 
+        console.log('up')
         handleup(e)
         });
   
@@ -475,7 +500,8 @@ const Canvas = () => {
         window.removeEventListener('mouseup', handleup);
         window.removeEventListener('touchmove', handleMove);
         overcanvas.removeEventListener('touchstart', handledown);
-        window.removeEventListener('touchend', handleup);
+        overcanvas.removeEventListener('touchend', handleup);
+        overcanvas.removeEventListener('touchcancel', handleup);
       };
     } catch (error) {
       console.log(error);
