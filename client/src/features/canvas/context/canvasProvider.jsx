@@ -20,6 +20,10 @@ export const CanvasProvider =({children})=>{
   const pageRef = useRef(null);
   const overCanvasRef = useRef(null);
   const moveref = useRef(null);
+//   const context = useRef(null);
+//   const overcontext = useRef(null);
+  const [context,setctx] = useState();
+  const [overcontext,setoverctx] = useState()
   
     const dispatch = useDispatch();
 
@@ -149,6 +153,13 @@ export const CanvasProvider =({children})=>{
         }
     ]
 
+    // const setctx =(val)=>{
+    //     context.current = val; 
+    // }
+
+    // const setoverctx = (val)=>{
+    //     overcontext.current = val;
+    // }
 
     return (
         <canvasContext.Provider 
@@ -167,7 +178,11 @@ export const CanvasProvider =({children})=>{
             setsizes,
             sizeControl_Icons,
             drawingcanvas,
-            setdrawing
+            setdrawing,
+            context,
+            overcontext,
+            setctx,
+            setoverctx
             }}>
 
         {children}

@@ -6,8 +6,8 @@ export const canvasSlice = createSlice({
         x:0,
         y:0,
         scale:1,
-        height:window.innerHeight,
-        width:window.innerWidth,
+        height:650,
+        width:1450,
         maxscale:Number.MAX_SAFE_INTEGER,
         minscale:0.2,
         scaleunit:0.1,
@@ -33,7 +33,11 @@ export const canvasSlice = createSlice({
             let obj = action.payload;
             if(!obj || typeof obj !== 'object') return;
             Object.keys(obj).forEach(key => {
-                state[key] = obj[key];
+                if(key === 'backgrond'){
+                    state[key] = obj[key];
+                }else{
+                    state[key] = Number(obj[key]);
+                }
             });
             console.log(state.x,state.y,action.payload)
         },
