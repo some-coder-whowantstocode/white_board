@@ -61,16 +61,16 @@ export const shapesSlice =createSlice({
             delete state.store[action.payload]
         },
         addLine(state, action){
-            const { x, y } = action.payload;
+            const { prev, border } = action.payload;
             let Line;
-            if(!state.lineid){
+            console.log(border)
                 Line = {
-                    prev:[],
+                    prev,
                     color:state.color,
                     linewidth:state.linewidth,
                     shape:'line',
                     id:uuidv4(),
-                    border:{x,y,w:0,h:0}
+                    border
                 }
                 if(state.currentPage < state.maxpages){
                     state.pages.splice(state.currentPage);
@@ -79,28 +79,7 @@ export const shapesSlice =createSlice({
                     state.pages.push([...state.pages[state.pages.length-1],Line.id]);
                     state.currentPage +=1 ;
                     state.maxpages+=1;
-                    const {id} = Line;
-                state.lineid = id;
-            state.store[state.lineid] = Line;
-
-            }else{
-                Line = state.store[state.lineid];
-                if(x < Line.border.x){
-                    Line.border.x = x ;
-                }else if(x > Line.border.w){
-                    Line.border.w = x;
-                }
-                if(y < Line.border.y){
-                    Line.border.y = y ;
-                }else if(y > Line.border.h){
-                    Line.border.h = y;
-                }
-                
-            }
-
-            Line.prev.push({x,y});
-            state.store[state.lineid] = Line;
-
+                state.store[Line.id] = Line;
 
         },
         endLine(state,action){
@@ -126,6 +105,8 @@ export const shapesSlice =createSlice({
             })
             Line.border.x += i;
             Line.border.y += j;
+            Line.border.w += i;
+            Line.border.h += j;
             state.store[state.select.id] = Line;
             state.select = Line;
 
@@ -163,7 +144,8 @@ export const shapesSlice =createSlice({
             state.pages[state.currentPage-1].map((id)=>{
                 const element = state.store[id];
                 const {border} = element;
-                if((x >= border.x && x <= (border.w + border.x)) &&( y <= (border.h+border.y) && y >= border.y) ){
+                console.log(border)
+                if((x >= border.x && x <= border.w) &&( y <= border.h && y >= border.y) ){
                     state.select = element;
                 }
             })

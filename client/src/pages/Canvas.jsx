@@ -70,6 +70,9 @@ const Canvas = () => {
   const dispatch = useDispatch();
   const navigate = useLocation();
 
+  const line = useRef([]);
+  const lineborder = useRef({x:1000000,y:1000000,h:0,w:0})
+
  
   useEffect(() => {
     history.navigater = navigate;
@@ -91,8 +94,8 @@ const Canvas = () => {
     try{
       console.log(INTERNAL_PROCESSES)
       if(INTERNAL_PROCESSES) return;
-      // const canvas = canvasRef.current;
-      // const context = canvas.getContext('2d');
+      const canvas = canvasRef.current;
+      const context = canvas.getContext('2d');
       const {x, y, scale, height, width, background} = CANVAS;
       const { store, size, color, currentPage, minpages, maxpages, pages } = SHAPE;
       const canvasData = {x, y, scale, height, width, background};
@@ -120,20 +123,35 @@ const Canvas = () => {
 
   const DrawLine = () => {
     try{
-        // const canvas = overCanvasRef.current;
-        // const overcontext = canvas.getContext('2d');
-        let x = (mouse.x-  CANVAS.x )/SCALE , y = (mouse.y- CANVAS.y)/SCALE  ;
-        dispatch(addLine({ x, y}));
+        let x = (mouse.x -  CANVAS.x )/SCALE , y = (mouse.y- CANVAS.y)/SCALE  ;
+        const overcanvas = overCanvasRef.current;
+        const overcontext = overcanvas.getContext('2d')
         overcontext.beginPath()
-        // overcontext.moveTo(mouse.x-CANVAS.x,mouse.y-CANVAS.y);
         overcontext.lineCap = 'round';
         overcontext.lineJoin = 'round';
         overcontext.strokeStyle = SHAPE.color;
         overcontext.lineWidth = SHAPE.linewidth * SCALE;
-        overcontext.moveTo(mouse.lastx-CANVAS.x,mouse.lasty-CANVAS.y);
-        overcontext.lineTo(mouse.x-CANVAS.x,mouse.y-CANVAS.y);
+        if(line.current.length >0){
+          let lastdot = line.current[line.current.length-1];
+          let lastx = (lastdot.x)*SCALE, lasty = (lastdot.y )*SCALE
+          overcontext.moveTo(lastx,lasty);
+        }else{
+          lineborder.current.x = x;
+          lineborder.current.y = y;
+          lineborder.current.w = x;
+          lineborder.current.h = y;
+        }
+        overcontext.lineTo(mouse.x - CANVAS.x,mouse.y-CANVAS.y);
+        line.current.push({x,y});
+        let border = lineborder.current;
+        if(x < border.x) border.x = x;
+        if(y < border.y) border.y = y;
+        if(x > border.w) border.w = x;
+        if(y > border.h) border.h = y;
+        lineborder.current = border;
+        console.log(border)
+        overcontext.closePath()
         overcontext.stroke();
-        // overcontext.closePath()
     }catch(err){
       console.log(err);
       handler(500,"something went wrong.");
@@ -149,9 +167,9 @@ const Canvas = () => {
   const redraw =async()=>{
     try {
       if(drawingcanvas){
-        // const canvas = canvasRef.current;
-        // const context = canvas.getContext('2d');
-        // createBoard(canvas);
+        const canvas = canvasRef.current;
+        const context = canvas.getContext('2d');
+        createBoard(canvas);
           const tempcanvas = document.createElement('canvas');
           const tempcontext = tempcanvas.getContext('2d');
   
@@ -178,10 +196,9 @@ const Canvas = () => {
     try {
       const context = canvas.getContext('2d');
       context.setTransform(1, 0, 0, 1, 0, 0);
-      console.log(CANVAS.x,CANVAS.y)
       clearBoard(context);
         context.translate(CANVAS.x,CANVAS.y);
-        context.fillStyle = CANVAS.background;
+        context.fillStyle ="white";
         context.fillRect(0,0,CANVAS.width * SCALE,CANVAS.height * SCALE);
         // drawingcanvas && context.putImageData(drawingcanvas,0,0);
       
@@ -195,8 +212,8 @@ const Canvas = () => {
     try {
       const canv = canvasRef.current;
       if(!canv) return;
-      // let context = canv.getContext('2d') 
       createBoard(canv);
+      const context = canv.getContext('2d');
       let arr = SHAPE.pages[PAGE-1];
       arr.map((i)=>{
       const { shape, linewidth, color, prev, id} = SHAPE.store[i];
@@ -209,8 +226,8 @@ const Canvas = () => {
           context.strokeStyle = color;
           context.lineCap = 'round';
           context.lineJoin = 'round';
-          context.moveTo(prev[0].x,prev[0].y)
-          for(let i=0; i<prev.length; i++){
+          context.moveTo(prev[0].x * SCALE,prev[0].y * SCALE)
+          for(let i=1; i<prev.length; i++){
             context.lineTo(prev[i].x * SCALE,prev[i].y * SCALE);
             context.stroke();
           }
@@ -233,41 +250,38 @@ const Canvas = () => {
   },[PAGE]);
 
 
-  // useEffect(()=>{
-  //     const id = setInterval(() => {
-  //     console.log(drawingcanvas)
-  //         SaveDrawing();
-  //     }, 1000 * 3);
+  useEffect(()=>{
+      const id = setInterval(() => {
+          SaveDrawing();
+      }, 1000 * 3);
 
-  //     return ()=>{
-  //       clearInterval(id);
-  //     }
-  // },[drawingcanvas,CANVAS]);
+      return ()=>{
+        clearInterval(id);
+      }
+  },[drawingcanvas,CANVAS]);
 
  
 
   useEffect(()=>{
     const canvas = canvasRef.current;
     const overcanvas = overCanvasRef.current;
-    let context = canvas.getContext('2d');
-    let overcontext = overcanvas.getContext('2d');
-    setctx(context);
-    setoverctx(overcontext);
+    // let context = canvas.getContext('2d');
+    // let overcontext = overcanvas.getContext('2d');
+    // setctx(context);
+    // setoverctx(overcontext);
 
     canvas.height = window.innerHeight;
     canvas.width = window.innerWidth;
     overcanvas.height = window.innerHeight;
     overcanvas.width = window.innerWidth;
-    createBoard(canvasRef.current);
+    createBoard(canvas);
 
     const initialize =async()=>{
       try {
-  console.log("hmmmmm")
         let name = localStorage.getItem('whiteboard') || 'default';
           const Data = await getoneNode(name);
           if(Data){
             let data = Data.page;
-            console.log(Data)
             if(data){
               const { drawing, canvasData, shapeData } = data;
               setdrawing(drawing);
@@ -316,14 +330,14 @@ const Canvas = () => {
     
     
           const {border} = SHAPE.select;
-          move_elem.style.height = `${border.h * SCALE}px`;
-          move_elem.style.width = `${border.w * SCALE}px`;
+          move_elem.style.height = `${(border.h - border.y) * SCALE}px`;
+          move_elem.style.width = `${(border.w - border.x) * SCALE}px`;
           move_elem.style.top = `${(border.y * SCALE) + CANVAS.y }px`;
           move_elem.style.left = `${(border.x * SCALE) + CANVAS.x }px`;
     
           const { shape, linewidth, color, prev, id} = SELECTED;
             if(shape === 'line'){
-              overcontext.beginPath()//important else it will think every drawn line as one.
+              overcontext.beginPath();
               overcontext.lineWidth = linewidth * SCALE;
               overcontext.strokeStyle = color;
               overcontext.lineCap = 'round';
@@ -348,13 +362,13 @@ const Canvas = () => {
     let id;
     const move_elem = moveref.current;
     overCanvasredraw()
-      id = setInterval(() => {
-      observer.observe(move_elem)
-      }, 1000);
+      // id = setInterval(() => {
+      // observer.observe(move_elem)
+      // }, 1000);
 
-      return()=>{
-          clearInterval(id);
-      }
+      // return()=>{
+      //     clearInterval(id);
+      // }
     },[SELECTED])
 
   useEffect(()=>{
@@ -370,20 +384,12 @@ const Canvas = () => {
       const handledown = (e,type) => {
         try{
           // if(mouse.x ===0 && mouse.y ===0) return;
-          if(type==='touch'){
-            let touch = e.touches[0];
-        let x =  touch.pageX;
-        let y = touch.pageY;
-        dispatch(update({x,y}));
 
-          }
-          switch (MODE) {
+      switch (MODE) {
             case 0:
-              // overCanvasredraw();
-              let x = (mouse.x - CANVAS.x) / SCALE,
-                y = (mouse.y - CANVAS.y) / SCALE;
-              dispatch(addLine({ x, y }));
+              overCanvasredraw();
               setdraw(true);
+              DrawLine();
               break;
       
             case 1:
@@ -417,16 +423,16 @@ const Canvas = () => {
         try {
         switch (MODE) {
           case 0:
-            const line = SHAPE.store[SHAPE.lineid];
-            if (line) {
-              let w = line.border.w - line.border.x,
-                h = line.border.h - line.border.y;
+            if(line.current.length > 0){
+              setdraw(false);
+              dispatch(addLine({prev: line.current,border:lineborder.current}));
+              line.current = [];
+              lineborder.current = {x:0,y:0,w:0,h:0}
+              const overcontext = overcanvas.getContext('2d');              
+              clearBoard(overcontext);
+              draw();
             }
-            overcontext.closePath();
-            setdraw(false);
-            dispatch(endLine());
-            clearBoard(overcontext);
-            draw();
+            
             break;
     
           case 1:
@@ -456,12 +462,11 @@ const Canvas = () => {
       const handleMove = (e,type) => {
         try {
         let x,y;
-        console.log(mouse)
         if(type==='touch'){
           let touch = e.touches[0];
           x =  touch.pageX;
           y = touch.pageY;
-          if(mouse.x === x && mouse.y === y) return;
+          // if(mouse.x === x && mouse.y === y) return;
         }else{
           x =  e.clientX ;
           y = e.clientY ;
@@ -477,6 +482,7 @@ const Canvas = () => {
           case 1:
             if (hold && SHAPE.select) {
               dispatch(updateLine({ i: mouse.movex, j: mouse.movey }));
+              overCanvasredraw()
             }
             break;
     
@@ -519,7 +525,7 @@ const Canvas = () => {
       console.log(err);
       handler(500);
     }
-  },[hold, canvasmove, freedraw, canvasRef, createBoard, mouse, context, overcontext])
+  },[hold, canvasmove, freedraw, canvasRef, createBoard, mouse, context, overcontext, CANVAS])
   
   return( <DRAWING_PAGE ref={pageRef} >
     <Popups/>
