@@ -5,6 +5,7 @@ import axios from "axios";
 import { userServiceping } from "../../../helper/ping";
 import { handler } from "../../../helper/handler";
 import { updateping } from "../slices/authSlice";
+import { pagelocation } from "../../../assets/pagesheet";
 
 const authContext = createContext(null);
 
@@ -190,9 +191,10 @@ export const AuthProvider =({children})=>{
                 email
             };
             const headers = {}
-            const {data} = await axios.post(URL, body, headers)
+            await axios.post(URL, body, headers)
             handler(200,'Email has been sent to the given email please check your email to changepass.')
             history.navigate(pagelocation.canvas)
+            
         }catch(err){
             handler(err.status ,err?.response?.data?.err || err?.message || "something went wrong.")
         }finally{
