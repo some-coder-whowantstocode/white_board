@@ -14,6 +14,7 @@ import { handler } from "../helper/handler.js";
 import Processings from "../features/processes/components/processings.jsx";
 import Controller from "../features/canvas/components/Controller.jsx";
 import { DrawLine } from "../features/canvas/services/DrawLine.js";
+import coverpage from '../assets/home page.jpg'
 
 const DRAWING_PAGE = styled.div`
   height: 100dvh;
@@ -44,9 +45,30 @@ const MOVE_BOX = styled.div`
   left: 0;
   height: 0;
   width: 0;
-  background-color: #bababa47;
-  resize: both;
+  background-color: transparent;
+  border: 3px solid black;
+  /* resize: both; */
   overflow:auto;
+`
+
+const COVER_PAGE = styled.div`
+  position: relative;
+  height: 100dvh;
+  width: 100dvw;
+  z-index: 1000;
+  h1{
+    font-size: 4.3rem;
+    position: absolute;
+    top: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  }
+  img{
+    height: 100dvh;
+  width: 100dvw;
+  }
 `
 
 const Canvas = () => {
@@ -58,7 +80,8 @@ const Canvas = () => {
   const SELECTED = useSelector((state)=>state.shape.select);
   const PAGE = useSelector((state)=>state.shape.currentPage);
   const INTERNAL_PROCESSES = useSelector((state)=>state.process.internalProcesses);
-  const { canvasRef, pageRef, overCanvasRef, moveref, drawingcanvas, setdrawing, overcontext, context, setctx, setoverctx } = useCanvas();
+  const { canvasRef, pageRef, overCanvasRef, moveref, drawingcanvas, setdrawing, overcontext, context } = useCanvas();
+  const [cover, setcover] = useState(true); 
 
   const dispatch = useDispatch();
   const navigate = useLocation();
@@ -220,10 +243,6 @@ const Canvas = () => {
   useEffect(()=>{
     const canvas = canvasRef.current;
     const overcanvas = overCanvasRef.current;
-    // let context = canvas.getContext('2d');
-    // let overcontext = overcanvas.getContext('2d');
-    // setctx(context);
-    // setoverctx(overcontext);
 
     canvas.height = window.innerHeight;
     canvas.width = window.innerWidth;
@@ -231,7 +250,7 @@ const Canvas = () => {
     overcanvas.width = window.innerWidth;
     createBoard(canvas);
 
-    const initialize =async()=>{
+    (async()=>{
       try {
         let name = localStorage.getItem('whiteboard') || 'default';
           const Data = await getoneNode(name);
@@ -257,10 +276,11 @@ const Canvas = () => {
       } catch (error) {
         console.log(error);
         handler(500)
+      }finally{
+    setcover(false)
       }
-    }
+    })();
 
-    initialize();
 
   },[])
 
@@ -345,7 +365,6 @@ const Canvas = () => {
             x =  touch.pageX;
             y = touch.pageY;
           dispatch(update({ x, y}));
-            // if(mouse.x === x && mouse.y === y) return;
           }else{
             x =  e.clientX ;
             y = e.clientY ;
@@ -358,12 +377,13 @@ const Canvas = () => {
               break;
       
             case 1:
-              overCanvasredraw();
-              let x1 = (x - CANVAS.x) / SCALE;
-              let y1 = (y - CANVAS.y) / SCALE;
-              dispatch(select({ x: x1, y: y1 }));
-              draw();
-              sethold((prevstate) => !prevstate);
+                overCanvasredraw();
+                let x1 = (x - CANVAS.x) / SCALE;
+                let y1 = (y - CANVAS.y) / SCALE;
+                dispatch(select({ x: x1, y: y1 }));
+                draw();
+                  sethold(true);
+
               break;
       
             case 2:
@@ -388,8 +408,8 @@ const Canvas = () => {
         try {
         switch (MODE) {
           case 0:
+            setdraw(false);
             if(line.current.length > 0){
-              setdraw(false);
               dispatch(addLine({prev: line.current,border:lineborder.current}));
               line.current = [];
               lineborder.current = {x:0,y:0,w:0,h:0}
@@ -402,6 +422,7 @@ const Canvas = () => {
     
           case 1:
             sethold(false);
+
             if (hold) {
               draw();
             }
@@ -445,6 +466,7 @@ const Canvas = () => {
             break;
     
           case 1:
+            console.log(hold, SHAPE.select)
             if (hold && SHAPE.select) {
               dispatch(updateLine({ i: x - mouse.x, j: y-mouse.y }));
               overCanvasredraw()
@@ -495,6 +517,13 @@ const Canvas = () => {
   },[hold, canvasmove, freedraw, canvasRef, createBoard, mouse, context, overcontext, CANVAS])
   
   return( <DRAWING_PAGE ref={pageRef} >
+    {
+      cover && 
+      <COVER_PAGE>
+        <h1>whiteboard</h1>
+        <img src={coverpage}/>
+      </COVER_PAGE>
+    }
     <Popups/>
     <Processings/>
     <Controller/>

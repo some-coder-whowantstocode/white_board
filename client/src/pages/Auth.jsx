@@ -36,7 +36,7 @@ return (
         <Processings/>
         <Auth_logo onClick={()=>history.navigate(pagelocation.canvas)}>
             <img src={logo} alt="" />
-            <span>name</span>
+            <span>whiteboard</span>
         </Auth_logo>
         <Authbox>
         <Styledbackground show={show} ></Styledbackground>
