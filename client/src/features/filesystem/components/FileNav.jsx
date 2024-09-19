@@ -89,7 +89,7 @@ const FileNav = () => {
             >  
                 <img src={home} alt=""   />
             </Logo>
-            <p>name</p>
+            <p>whiteboard</p>
             </App_logo>
         </Top>
         <Middle>
