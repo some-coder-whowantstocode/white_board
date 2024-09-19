@@ -37,18 +37,19 @@ return (
                             <p>{item.head}</p>
                         <Auth_icons id={item.name}>
                         {
-                            item.otherways.map((logo)=>(
-                                <span>{logo}</span>
+                            item.otherways.map((logo,i)=>(
+                                <span key={i}>{logo}</span>
                             ))
                         }
                         </Auth_icons>
                         
                         <Auth_instructions show={`${show === item.name}`}>{item.instruction}</Auth_instructions>
                         {
-                            item.inputs.map((i)=>(
+                            item.inputs.map((i,key)=>(
                                 <Auth_input 
                                 type={i}
                                 required
+                                key={key}
                                 onChange={(e)=>{
                                     inputdata.current[item.name][i] = e.target.value;
                                 }}
@@ -56,7 +57,7 @@ return (
                             ))
                         }
                         <Rememberme>
-                        <input type='checkbox' checked={AUTH.rememberme} onClick={()=>dispatch(change_token_memory())}/>
+                        <input type='checkbox' onClick={()=>dispatch(change_token_memory())}/>
                         <p>remember me</p>
                         </Rememberme>
                         <Auth_btn 

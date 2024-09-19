@@ -1,26 +1,19 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useCanvas } from "../features/canvas/context/canvasProvider.jsx";
 import styled from "styled-components";
-import {
-  Circle,
-  Line,
-  Rectangle,
-  CanvasTree,
-} from "../features/canvas/services/canvasShapes/index.js";
-import { addNode, getcurrent, getoneNode, updateNode } from "../features/database/services/indexedDB.js";
+import { addNode, getoneNode, updateNode } from "../features/database/services/indexedDB.js";
 import { useDispatch , useSelector } from "react-redux";
-import { drawMode, update, updatemove } from "../features/canvas/slices/cursorSlice.js";
-import { downscale, move, addcanvas, upscale } from "../features/canvas/slices/canvasSlice.js";
-import { addLine, endLine, select, addshape, updateLine } from "../features/canvas/slices/shapesSlice.js";
-import { PiListDashesFill } from "react-icons/pi";
+import { update } from "../features/canvas/slices/cursorSlice.js";
+import { move, addcanvas } from "../features/canvas/slices/canvasSlice.js";
+import { addLine, select, addshape, updateLine } from "../features/canvas/slices/shapesSlice.js";
 import { history } from "../App.jsx";
 import { useLocation } from "react-router-dom";
 import { isloggedin } from "../features/authentication/slices/authSlice.js";
 import Popups from "../features/popup/components/Popups.jsx";
 import { handler } from "../helper/handler.js";
 import Processings from "../features/processes/components/processings.jsx";
-import { popinternalProcess, pushinternalProcess } from "../features/processes/slices/processSlice.js";
 import Controller from "../features/canvas/components/Controller.jsx";
+import { DrawLine } from "../features/canvas/services/DrawLine.js";
 
 const DRAWING_PAGE = styled.div`
   height: 100dvh;
@@ -121,43 +114,6 @@ const Canvas = () => {
     }
   }
 
-  const DrawLine = () => {
-    try{
-        let x = (mouse.x -  CANVAS.x )/SCALE , y = (mouse.y- CANVAS.y)/SCALE  ;
-        const overcanvas = overCanvasRef.current;
-        const overcontext = overcanvas.getContext('2d')
-        overcontext.beginPath()
-        overcontext.lineCap = 'round';
-        overcontext.lineJoin = 'round';
-        overcontext.strokeStyle = SHAPE.color;
-        overcontext.lineWidth = SHAPE.linewidth * SCALE;
-        if(line.current.length >0){
-          let lastdot = line.current[line.current.length-1];
-          let lastx = (lastdot.x)*SCALE, lasty = (lastdot.y )*SCALE
-          overcontext.moveTo(lastx,lasty);
-        }else{
-          lineborder.current.x = x;
-          lineborder.current.y = y;
-          lineborder.current.w = x;
-          lineborder.current.h = y;
-        }
-        overcontext.lineTo(mouse.x - CANVAS.x,mouse.y-CANVAS.y);
-        line.current.push({x,y});
-        let border = lineborder.current;
-        if(x < border.x) border.x = x;
-        if(y < border.y) border.y = y;
-        if(x > border.w) border.w = x;
-        if(y > border.h) border.h = y;
-        lineborder.current = border;
-        console.log(border)
-        overcontext.closePath()
-        overcontext.stroke();
-    }catch(err){
-      console.log(err);
-      handler(500,"something went wrong.");
-    }
-    
-  };
 
   const clearBoard=(CTX)=>{
     CTX.clearRect(0,0,window.innerWidth,window.innerHeight);
@@ -221,11 +177,11 @@ const Canvas = () => {
       if(SHAPE.select && SHAPE.select.id === id) draw = false;
       if( draw){
         if(shape === 'line'){
-          context.beginPath()//important else it will think every drawn line as one.
-          context.lineWidth = linewidth * SCALE;
-          context.strokeStyle = color;
+          context.beginPath()
           context.lineCap = 'round';
-          context.lineJoin = 'round';
+        context.lineJoin = 'round';
+        context.strokeStyle = color;
+        context.lineWidth = linewidth * SCALE;
           context.moveTo(prev[0].x * SCALE,prev[0].y * SCALE)
           for(let i=1; i<prev.length; i++){
             context.lineTo(prev[i].x * SCALE,prev[i].y * SCALE);
@@ -384,18 +340,28 @@ const Canvas = () => {
       const handledown = (e,type) => {
         try{
           // if(mouse.x ===0 && mouse.y ===0) return;
+          let x,y;
+          if(type==='touch'){
+            let touch = e.touches[0];
+            x =  touch.pageX;
+            y = touch.pageY;
+          dispatch(update({ x, y}));
+            // if(mouse.x === x && mouse.y === y) return;
+          }else{
+            x =  e.clientX ;
+            y = e.clientY ;
+          }
 
       switch (MODE) {
             case 0:
               overCanvasredraw();
               setdraw(true);
-              DrawLine();
               break;
       
             case 1:
               overCanvasredraw();
-              let x1 = (mouse.x - CANVAS.x) / SCALE;
-              let y1 = (mouse.y - CANVAS.y) / SCALE;
+              let x1 = (x - CANVAS.x) / SCALE;
+              let y1 = (y - CANVAS.y) / SCALE;
               dispatch(select({ x: x1, y: y1 }));
               draw();
               sethold((prevstate) => !prevstate);
@@ -466,33 +432,35 @@ const Canvas = () => {
           let touch = e.touches[0];
           x =  touch.pageX;
           y = touch.pageY;
-          // if(mouse.x === x && mouse.y === y) return;
+          dispatch(update({ x, y}));
         }else{
           x =  e.clientX ;
           y = e.clientY ;
         }
-        dispatch(update({ x, y}));
+        
         switch (MODE) {
           case 0:
             if (freedraw) {
-              DrawLine();
+              DrawLine(x,y,CANVAS.x,CANVAS.y,SCALE,overCanvasRef.current,SHAPE.color,SHAPE.linewidth,line,lineborder);
             }
             break;
     
           case 1:
             if (hold && SHAPE.select) {
-              dispatch(updateLine({ i: mouse.movex, j: mouse.movey }));
+              dispatch(updateLine({ i: x - mouse.x, j: y-mouse.y }));
               overCanvasredraw()
             }
             break;
     
           case 2:
             if (canvasmove) {
-              dispatch(move({ x:mouse.movex, y:  mouse.movey }));
+              dispatch(move({ x: x - mouse.x, y: y-mouse.y }));
               createBoard(canvasRef.current);
             }
             break;
         }
+
+        if(type !== 'touch') dispatch(update({ x, y}));
       } catch (error) {
         console.log(error);
         handler(500)

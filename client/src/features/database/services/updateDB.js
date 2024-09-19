@@ -53,7 +53,6 @@ const updateNode = async(name, page,img)=>{
         const transanction = db.transaction('Folder','readwrite');
         const store = transanction.objectStore('Folder');
         const index = store.index('files');
-        console.log(name)
         const request = index.get([name])
         request.onsuccess = async()=> {
             const node = request.result;

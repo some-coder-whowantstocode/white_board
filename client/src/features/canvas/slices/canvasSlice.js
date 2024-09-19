@@ -39,7 +39,6 @@ export const canvasSlice = createSlice({
                     state[key] = Number(obj[key]);
                 }
             });
-            console.log(state.x,state.y,action.payload)
         },
         move(state,action){
             state.x += action.payload.x;

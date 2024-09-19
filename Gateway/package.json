@@ -1,7 +1,7 @@
 {
   "license":"MIT",
   "scripts": {
-    "start": "node index.js"
+    "start": "npm index.js"
   },
   "dependencies": {
     "cors": "^2.8.5",

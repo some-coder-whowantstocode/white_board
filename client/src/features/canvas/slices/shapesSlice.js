@@ -63,7 +63,6 @@ export const shapesSlice =createSlice({
         addLine(state, action){
             const { prev, border } = action.payload;
             let Line;
-            console.log(border)
                 Line = {
                     prev,
                     color:state.color,
@@ -98,9 +97,10 @@ export const shapesSlice =createSlice({
         updateLine(state, action){
             const { i, j } = action.payload;
             let Line = state.store[state.select.id];
+            console.log(i,j)
             Line.prev = Line.prev.map(({x,y}) => {
-                x+=i;
-                y+=j;
+                x += i;
+                y += j;
                 return {x,y}
             })
             Line.border.x += i;
@@ -109,27 +109,6 @@ export const shapesSlice =createSlice({
             Line.border.h += j;
             state.store[state.select.id] = Line;
             state.select = Line;
-
-        //     const Line = {
-        //         prev,
-        //         color:state.color,
-        //         linewidth:state.linewidth,
-        //         shape:'line',
-        //         id:uuidv4(),
-        //         border
-        //     }
-
-        //     if(state.currentPage < state.maxpages){
-        //         state.pages.splice(state.currentPage);
-        //     }
-        //     let arr = state.pages[state.pages.length-1];
-        //     arr = arr.filter((i)=> arr[i] !== id );
-        //         state.pages.push([...arr,Line.id]);
-        //         state.currentPage +=1 ;
-        //         state.maxpages+=1;
-                
-        //     state.lineid = Line.id;
-        // state.store[state.lineid] = Line;
 
         },
         changeLinewidth(state, action){
@@ -144,7 +123,6 @@ export const shapesSlice =createSlice({
             state.pages[state.currentPage-1].map((id)=>{
                 const element = state.store[id];
                 const {border} = element;
-                console.log(border)
                 if((x >= border.x && x <= border.w) &&( y <= border.h && y >= border.y) ){
                     state.select = element;
                 }

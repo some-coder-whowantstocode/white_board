@@ -15,7 +15,7 @@ const fileContext = createContext(null);
 
 export const FileProvider =({children})=>{
 
-    const [width,setwidth] = useState(250);
+    const [width,setwidth] = useState(70);
     const [currentFiles,setFiles] = useState([]);
     const width_limit = {max:300,min:200,logo:70}
     const INTERNAL_PROCESSES = useSelector((state)=>state.process.internalProcesses);
