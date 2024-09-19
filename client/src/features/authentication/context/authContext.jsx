@@ -6,6 +6,7 @@ import { userServiceping } from "../../../helper/ping";
 import { handler } from "../../../helper/handler";
 import { updateping } from "../slices/authSlice";
 import { pagelocation } from "../../../assets/pagesheet";
+import { history } from "../../../App";
 
 const authContext = createContext(null);
 
@@ -174,7 +175,8 @@ export const AuthProvider =({children})=>{
                 return;
                 }
             dispatch(pushexternalProcess({msg:"singing in..."}))
-            await verify();
+            let verified = await verify();
+            if(!verified) return;
             if(!email){
                 handler(500,"please enter email.");
                 return;
@@ -209,7 +211,8 @@ export const AuthProvider =({children})=>{
                 return;
                 }
             dispatch(pushexternalProcess({msg:"singing in..."}))
-            await verify();
+            let verified = await verify();
+            if(!verified) return;
             if(!password){
                 handler(500,"please enter password.");
                 return;
@@ -220,16 +223,17 @@ export const AuthProvider =({children})=>{
                     handler(500,"please enter a valid password.");
                 break;
                 }
-            }
+            };
             
             const URL = `${import.meta.env.VITE_KEY_GATEWAY}${import.meta.env.VITE_KEY_USERSERVICE}${import.meta.env.VITE_KEY_USER_CHANGE_PASS}/${token}`;
             const body = {
                 password
             };
-            const headers = {}
-            const {data} = await axios.post(URL, body, headers)
-            handler(200,'password changed successfully')
+            const headers = {};
+            await axios.post(URL, body, headers);
+            handler(200,'password changed successfully');
             history.navigate(pagelocation.auth);
+            
         }catch(err){
             console.log(err)
             handler(err.status ,err?.response?.data?.err || err?.message || "something went wrong.")
@@ -245,7 +249,8 @@ export const AuthProvider =({children})=>{
             return;
             }
             dispatch(pushexternalProcess({ msg: "verifying user..." }));
-            await verify();
+            let verified = await verify();
+            if(!verified) return;
             if(otp.length < lengthallowed){
             handler(500, "please provide the otp given to you.");
             return;
