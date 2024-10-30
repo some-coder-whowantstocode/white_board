@@ -5,7 +5,7 @@ import { addNode, getoneNode, updateNode } from "../features/database/services/i
 import { useDispatch , useSelector } from "react-redux";
 import { update } from "../features/canvas/slices/cursorSlice.js";
 import { move, addcanvas } from "../features/canvas/slices/canvasSlice.js";
-import { addLine, select, addshape, updateLine } from "../features/canvas/slices/shapesSlice.js";
+import { addLine, select, addshape, updateLine, release } from "../features/canvas/slices/shapesSlice.js";
 import { history } from "../App.jsx";
 import { useLocation } from "react-router-dom";
 import { isloggedin } from "../features/authentication/slices/authSlice.js";
@@ -358,7 +358,6 @@ const Canvas = () => {
       const overcanvas = overCanvasRef.current;
       const handledown = (e,type) => {
         try{
-          // if(mouse.x ===0 && mouse.y ===0) return;
           let x,y;
           if(type==='touch'){
             let touch = e.touches[0];
@@ -423,6 +422,7 @@ const Canvas = () => {
           case 1:
             sethold(false);
 
+            dispatch(release());
             if (hold) {
               draw();
             }
@@ -466,7 +466,6 @@ const Canvas = () => {
             break;
     
           case 1:
-            console.log(hold, SHAPE.select)
             if (hold && SHAPE.select) {
               dispatch(updateLine({ i: x - mouse.x, j: y-mouse.y }));
               overCanvasredraw()

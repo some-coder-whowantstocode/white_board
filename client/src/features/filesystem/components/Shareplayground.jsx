@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import Popups from '../../popup/components/Popups';
 import Processings from '../../processes/components/processings';
 import { IconBox } from '../../../assets/icons';
+import { v4 } from 'uuid';
 
 const SHARE_PAGE = styled.div`
   height: 100vh;
@@ -59,7 +60,10 @@ const Shareplayground = () => {
       <Processings/>
       {
         SHARE_CONTROL.map(({name, icon, func})=>(
-          <CONTROL_ELEMENT onClick={()=>func()}>
+          <CONTROL_ELEMENT 
+          key={v4()}
+          onClick={()=>func()}
+          >
             {React.createElement(icon,{})}
             <p>
             { name }

@@ -2,6 +2,7 @@ import styled from "styled-components";
 
 
 const Icon = styled.div`
+    cursor: pointer;
     font-size: 20px;
     margin: 10px;
     padding: 3px 5px;
@@ -12,7 +13,6 @@ const Icon = styled.div`
     transition: all 0.2s;
     width: fit-content;
     color: #00132b;
-    cursor: pointer;
     p{
         border-radius: 50%;
         border: 2px solid black;

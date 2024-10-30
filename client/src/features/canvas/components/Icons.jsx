@@ -11,7 +11,7 @@ const Icons = ({icons}) => {
  
   return (
     <>
-    {icons.map(({ icon,des, func ,mode, shape , parentIcon, innericons,type }, i) => (
+    {icons.map(({ icon, func ,mode , parentIcon, innericons,type }, i) => (
       <div 
       key={i} 
       onClick={(e) => {
@@ -22,9 +22,10 @@ const Icons = ({icons}) => {
         {
           parentIcon ? 
           <DropIcon 
+          name={type}
           icon={icon}
           childicons={innericons}
-          name={type}
+          selected={mode==SELECTED}
           />
           :
           <Icon

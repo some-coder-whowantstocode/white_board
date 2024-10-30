@@ -68,7 +68,10 @@ export const CanvasProvider =({children})=>{
             selectable:true
         }]
 
-   
+    const drawingpen_ctrl = [
+        
+    ]
+
     const sizeControl_Icons = []
 
     const controlIcons = [
@@ -86,6 +89,8 @@ export const CanvasProvider =({children})=>{
             mode:MODES.Draw,
             shape:SHAPES.NONE,
             selectable:true,
+            parentIcon:true,
+            innericons:drawingpen_ctrl
         },
 
         {

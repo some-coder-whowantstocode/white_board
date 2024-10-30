@@ -1,15 +1,17 @@
 import { createContext, useContext, useState } from "react";
+import { useSelector } from "react-redux";
+import { coreModuleName } from "@reduxjs/toolkit/query";
+import JSZip from "jszip";
+import { saveAs } from 'file-saver'
+
 import { IconBox } from "../../../assets/icons";
 import { addNode, getallFiles, getoneNode, updateNode } from "../../database/services/indexedDB";
 import { pagelocation } from '../../../assets/pagesheet';
 import { history } from "../../../App";
-import { useCanvas } from "../../canvas/context/canvasProvider";
 import { handler } from "../../../helper/handler";
-import { coreModuleName } from "@reduxjs/toolkit/query";
 import { getoneFile } from "../../database/services/readDB";
 import { popinternalProcess, pushinternalProcess } from "../../processes/slices/processSlice";
 import store from "../../../store";
-import { useSelector } from "react-redux";
 
 const fileContext = createContext(null);
 
@@ -44,7 +46,6 @@ export const FileProvider =({children})=>{
     }
 
     const DownloadImage = async(type, height, width)=>{
-        
         try {
             if(INTERNAL_PROCESSES){
                 handler(500, "please wait patiently one request is being processed");
@@ -64,24 +65,21 @@ export const FileProvider =({children})=>{
                 return;
             }
 
-            let data = Data.page;
+            const {canvasData, shapeData, drawing} = Data.page;
             const canvasname = Data.name;
             let filedata = {
                 name:canvasname,
-                data,
+                data:{canvasData,shapeData},
                 img
             }
-            const { drawing } = data;
                 if(type === "whiteboard"){
                     filedata = JSON.stringify(filedata);
                     filedata = encodeURI(filedata);
-                    const file = new File([filedata],`${name}.whiteboard`,{})
-                    const fileurl = URL.createObjectURL(file);
-                    const a = document.createElement('a');
-                    a.href = fileurl;
-                    a.download = file.name;
-                    a.click();
-                    window.URL.revokeObjectURL(fileurl);
+                    const zip = new JSZip();
+                    zip.file(`img.whiteboard`, filedata);
+
+                    const file = await zip.generateAsync({ type: "blob" })
+                    saveAs(file,`${name}.zip`)
                 }else{
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
@@ -99,7 +97,6 @@ export const FileProvider =({children})=>{
                         case "png":
                             {
                                 const resizedImageData = newcanvas.toDataURL('image/png');
-            
                                 const a = document.createElement('a');
                                 a.href = resizedImageData;
                                 a.download = "whiteboard img.png";
@@ -151,25 +148,24 @@ export const FileProvider =({children})=>{
         const inputbox = document.createElement('input');
         inputbox.type = 'file';
         inputbox.click();
-        inputbox.oninput =()=>{
+        inputbox.oninput =async()=>{
             const selected_file = inputbox.files[0];
             if(!selected_file){
             handler(500,"file not selected");
             return;
             }
-            const test = /\.whiteboard$/;
+            const test = /\.zip$/;
             if(!test.test(selected_file.name)){
                 handler(500,"Invalid file type please provide file that was exportate from whiteboard site ex: example.whiteboard")
                 return;
             }
-            const reader = new FileReader();
-            reader.onload = async function(e){
+            
                 try{
-                    let filecontent = e.target.result;
-                    filecontent = decodeURI(filecontent);
-                    filecontent = JSON.parse(filecontent);
+                    let filecontent = await JSZip.loadAsync(selected_file);
+                    filecontent = await filecontent.file(`img.whiteboard`).async('string');
+                    filecontent = decodeURI(filecontent)
+                    filecontent = await JSON.parse(filecontent);
                     const {name, data, img} = filecontent;
-                    console.log(filecontent)
                     if( !name || !data || !img){
                         handler(500,"Invalid data");
                         return;
@@ -181,14 +177,7 @@ export const FileProvider =({children})=>{
                     console.log(err)
                 handler(500,"something went wrong while processing request")
                 }
-            };
-            reader.onerror =function(err){
-                console.log(err);
-            handler(500,"something went wrong while processing request")
-            return;
-            }
-            reader.readAsText(selected_file);
-            handler(200,"successfully imported image"); 
+                
         }
         } catch (error) {
             console.log(error);

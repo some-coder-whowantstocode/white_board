@@ -32,7 +32,13 @@ const addNode = async (name) => {
             request2.onerror = () => reject(request2.error);
             transaction2.onerror = () => reject(transaction2.error);
             };
-        request.onerror = () => reject(request.error);
+        request.onerror = () =>{
+            const {error} = request 
+            if(error.code === 0){
+                handler(500,"canvas with same name already exists please rename it or remove it")
+            }
+            reject(error.message);
+        }
         transaction.onerror = () => reject(transaction.error);
         });
     } catch (err) {

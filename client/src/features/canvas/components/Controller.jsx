@@ -16,7 +16,7 @@ const ControlBox = styled.span`
   background-color: white;
   width: fit-content;
   z-index: 2;
-  overflow: hidden;
+  /* overflow: hidden; */
   box-shadow: 0px 3px 9px 0px rgba(0, 0, 0, 0.75);
 
   @media screen and (max-width: 500px) {
@@ -48,7 +48,6 @@ const Panel = styled.div`
 
 const Controller = () => {
   const { controlIcons } = useCanvas();
-
   return (
     <ControlBox>
       <Panel >
@@ -58,4 +57,4 @@ const Controller = () => {
   );
 };
 
-export default Controller;
+export default React.memo(Controller);

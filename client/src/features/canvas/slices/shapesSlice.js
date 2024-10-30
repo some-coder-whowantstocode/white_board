@@ -16,6 +16,9 @@ export const shapesSlice =createSlice({
         pages:[[]]
     },
     reducers:{
+        changeColor(state,action){
+            state.color = action.payload;
+        },
         clearshape(state){
             state.linewidth=10,
             state.store=new Object(),
@@ -63,6 +66,7 @@ export const shapesSlice =createSlice({
         addLine(state, action){
             const { prev, border } = action.payload;
             let Line;
+            console.log(state.color)
                 Line = {
                     prev,
                     color:state.color,
@@ -97,7 +101,6 @@ export const shapesSlice =createSlice({
         updateLine(state, action){
             const { i, j } = action.payload;
             let Line = state.store[state.select.id];
-            console.log(i,j)
             Line.prev = Line.prev.map(({x,y}) => {
                 x += i;
                 y += j;
@@ -119,7 +122,9 @@ export const shapesSlice =createSlice({
         },
         select(state,action){
             const { x, y } = action.payload;
-            state.select = null;
+            if(state.select){
+                state.select = null;
+            }
             state.pages[state.currentPage-1].map((id)=>{
                 const element = state.store[id];
                 const {border} = element;
@@ -159,6 +164,6 @@ export const shapesSlice =createSlice({
     }
 }) 
 
-export const { addCircle, addLine, endLine, updateCircle, deleteShape, changeLinewidth, changeColor, select, updateLine, undo, redo, addshape, clearshape } = shapesSlice.actions;
+export const { addCircle, addLine,  endLine, updateCircle, deleteShape, changeLinewidth, changeColor, select, updateLine, undo, redo, addshape, clearshape, release } = shapesSlice.actions;
 
 export default shapesSlice.reducer;

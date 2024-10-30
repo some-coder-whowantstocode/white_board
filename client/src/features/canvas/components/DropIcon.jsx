@@ -1,18 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react'
 import styled from 'styled-components';
 import Icons from './Icons';
+import { Icon } from '../styles/icon';
+import { IconBox } from '../../../assets/icons';
+import Colourpicker from './Colourpicker';
 
 const ParentIcon = styled.div`
-  border-radius: 4px;
-  padding: 5px;
   position: relative;
   display: flex;
   ${(props) =>
     props.vis === "true" && `box-shadow: 0px 1px 4px 0px rgba(0,0,0,0.75)`};
   cursor: pointer;
-  &:hover{
-    box-shadow: 0px 1px 4px 0px rgba(0,0,0,0.75);
-    }
 `;
 
 
@@ -24,7 +22,7 @@ const AllShapes = styled.div`
   transition: top 0.3s, opacity 0.4s;
   position: absolute;
   left: 0px;
-  top: -100px;
+  top: -150px;
   ${(props) => props.vis === "true" && `
   opacity:1;
   display:flex;
@@ -34,45 +32,38 @@ const AllShapes = styled.div`
   background-color:white;
 `;
 
-const DropIcon = ({icon,childicons,name}) => {
-
+const DropIcon = ({icon,childicons,selected, name}) => {
 
   const [shape, show_shape] = useState(false);
   const element = useRef(null);
-
-  useEffect(()=>{
-
-    const handleclick =(e)=>{
-      if(e.target === element.current || element.current.contains(e.target)){
-        !shape && show_shape(true)
-      }else{
-        shape && show_shape(false);
-       
-      }
-    }
-
-    document.addEventListener('click',handleclick);
-
-    return ()=>{
-      document.removeEventListener('click',handleclick);
-    }
-  },[shape])
 
   return (
     <>
         <ParentIcon 
         ref={element}
+        
         >
           
-          <p>{name}</p>
+          <Icon
+          sel={String(selected)}
+          onClick={(e)=>{
+            show_shape(!shape)
+          }}
+          >
           {
-            React.createElement(icon,{})
+            React.createElement(icon,
+              {}
+            )
           }
+          </Icon>
           
           <AllShapes
         vis={String(shape)}
-        
         >
+          {
+            name === IconBox.DRAW.name &&
+            <Colourpicker/>
+          }
           <Icons icons={childicons}/>
       </AllShapes>
         </ParentIcon>

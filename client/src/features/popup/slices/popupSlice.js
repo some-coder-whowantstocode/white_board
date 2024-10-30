@@ -22,7 +22,7 @@ export const popupSlice = createSlice({
         addpopup(state,action){
             let existinglength = Object.keys(state.popups).length;
             if(existinglength == state.maxAllowed){
-               delete state.popups[Object.keys(state.popups)[0]];
+                delete state.popups[Object.keys(state.popups)[0]];
             }
             const {msg, type} = action.payload;
             let id = uuidv4();
