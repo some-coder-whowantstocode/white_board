@@ -43,4 +43,4 @@ const Icons = ({icons}) => {
   )
 }
 
-export default Icons
+export default React.memo(Icons)

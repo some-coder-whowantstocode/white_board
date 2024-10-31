@@ -15,7 +15,7 @@ const Colourpicker = () => {
     const canvasref = useRef();
     const posref = useRef({x:0,y:0})
     const dispatch = useDispatch();
-
+    console.log('color picker')
     useEffect(()=>{
         try {
         const draw =()=>{
@@ -85,4 +85,4 @@ const Colourpicker = () => {
     )
 }
 
-export default React.memo(Colourpicker)
+export default Colourpicker
