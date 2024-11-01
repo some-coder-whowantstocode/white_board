@@ -140,10 +140,6 @@ const Canvas = () => {
 //   }
 
 
-  // const clearBoard=(CTX)=>{
-  //   CTX.clearRect(0,0,window.innerWidth,window.innerHeight);
-  // }
-
   
 //   const redraw =async()=>{
 //     try {
@@ -198,11 +194,11 @@ const Canvas = () => {
 //     const canvas = canvasRef.current;
 //     const overcanvas = overCanvasRef.current;
 
-//     canvas.height = window.innerHeight;
-//     canvas.width = window.innerWidth;
-//     overcanvas.height = window.innerHeight;
-//     overcanvas.width = window.innerWidth;
-//     createBoard(canvas);
+    // canvas.height = window.innerHeight;
+    // canvas.width = window.innerWidth;
+    // overcanvas.height = window.innerHeight;
+    // overcanvas.width = window.innerWidth;
+    // createBoard(canvas);
 
 //     (async()=>{
 //       try {
@@ -295,7 +291,14 @@ const Canvas = () => {
       
       drawingboard.canvasdata.canvas = canvasRef.current;
       drawingboard.canvasdata.overcanvas = overCanvasRef.current;
+      drawingboard.canvasdata.canvas.height = window.innerHeight;
+      drawingboard.canvasdata.canvas.width = window.innerWidth;
+      drawingboard.canvasdata.overcanvas.height = window.innerHeight;
+      drawingboard.canvasdata.overcanvas.width = window.innerWidth;
       drawingboard.createBoard();
+
+      window.addEventListener('mousedown',drawingboard.handledown.bind(drawingboard))
+      window.addEventListener('mouseup',drawingboard.handleup.bind(drawingboard))
       // DrawingBoard.prototype
     } catch (error) {
       console.log(error);

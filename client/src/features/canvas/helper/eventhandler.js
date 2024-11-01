@@ -31,23 +31,37 @@ DrawingBoard.prototype.handletouchstart = () => {
     }
 }
 
-DrawingBoard.prototype.handledown = (e) => {
+DrawingBoard.prototype.handledown = function(e){
     try {
         let x, y;
         x = e.clientX;
         y = e.clientY;
-
-        this.overCanvasredraw();
-        switch (MODE) {
+        // this.overCanvasredraw();
+        switch (this.canvasdata.currentmode) {
             case 0:
-                setdraw(true);
+                {
+                    let x1 = (x - this.canvasdata.x) / this.canvasdata.scale;
+                    let y1 = (y - this.canvasdata.y) / this.canvasdata.scale;
+                    this.shapedata.prev.push(x1,y1);
+                    const overcontext = this.canvasdata.canvas.getContext('2d')
+                    overcontext.beginPath();
+                    overcontext.arc(x1,y1,10,0,Math.PI * 2);
+                    console.log(x1,y1,this.shapedata.prev)
+                overcontext.closePath();
+                overcontext.stroke();
+                }
+                // setdraw(true);
                 break;
 
             case 1:
-                let x1 = (x - this.canvasdata.x) / this.canvasdata.scale;
-                let y1 = (y - this.canvasdata.y) / this.canvasdata.scale;
-                this.select({ x: x1, y: y1 });
-                this.draw();
+                {
+
+                    let x1 = (x - this.canvasdata.x) / this.canvasdata.scale;
+                    let y1 = (y - this.canvasdata.y) / this.canvasdata.scale;
+                    this.shapedata.prev.push(x1,y1);
+                }
+                // this.select({ x: x1, y: y1 });
+                // this.draw();
                 // sethold(true);
 
                 break;
@@ -67,18 +81,18 @@ DrawingBoard.prototype.handletouchend =()=>{
     
 }
 
-DrawingBoard.prototype.handleup = () => {
+DrawingBoard.prototype.handleup = function(e){
     try {
-        switch (MODE) {
+        switch (this.canvasdata.currentmode) {
             case 0:
                 // setdraw(false);
-                if (this.line.prev.length > 0) {
-                    dispatch(addLine({ prev: line.current, border: lineborder.current }));
-                    line.current = [];
-                    lineborder.current = { x: 0, y: 0, w: 0, h: 0 }
-                    const overcontext = overcanvas.getContext('2d');
-                    clearBoard(overcontext);
-                    draw();
+                if (this.shapedata.prev.length > 0) {
+                    // dispatch(addLine({ prev: line.current, border: lineborder.current }));
+                    this.shapedata.prev = [];
+                    // lineborder.current = { x: 0, y: 0, w: 0, h: 0 }
+                    // const overcontext = overcanvas.getContext('2d');
+                    // clearBoard(overcontext);
+                    // draw();
                 }
 
                 break;
@@ -104,18 +118,12 @@ DrawingBoard.prototype.handleup = () => {
 };
 
 
-DrawingBoard.prototype.handleMove = (e, type) => {
+DrawingBoard.prototype.handleMove = function(e){
     try {
         let x, y;
-        if (type === 'touch') {
-            let touch = e.touches[0];
-            x = touch.pageX;
-            y = touch.pageY;
-            dispatch(update({ x, y }));
-        } else {
+        
             x = e.clientX;
             y = e.clientY;
-        }
 
         switch (MODE) {
             case 0:
@@ -139,7 +147,6 @@ DrawingBoard.prototype.handleMove = (e, type) => {
                 break;
         }
 
-        if (type !== 'touch') dispatch(update({ x, y }));
     } catch (error) {
         console.log(error);
         handler(500)
@@ -147,6 +154,31 @@ DrawingBoard.prototype.handleMove = (e, type) => {
 };
 
 DrawingBoard.prototype.handletouchmove = (e) => {
-    e.preventDefault();
-    handleMove(e, 'touch');
+    let x,y;
+    let touch = e.touches[0];
+    x = touch.pageX;
+    y = touch.pageY;
+
+    switch (MODE) {
+        case 0:
+            if (freedraw) {
+                DrawLine(x, y, CANVAS.x, CANVAS.y, SCALE, overCanvasRef.current, SHAPE.color, SHAPE.linewidth, line, lineborder);
+            }
+            break;
+
+        case 1:
+            if (hold && SHAPE.select) {
+                dispatch(updateLine({ i: x - mouse.x, j: y - mouse.y }));
+                overCanvasredraw()
+            }
+            break;
+
+        case 2:
+            if (canvasmove) {
+                dispatch(move({ x: x - mouse.x, y: y - mouse.y }));
+                createBoard(canvasRef.current);
+            }
+            break;
+    }
+
 }

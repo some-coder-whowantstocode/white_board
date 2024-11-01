@@ -13,6 +13,7 @@ function DrawingBoard () {
         background:'white',
         modes:['draw','move','cursor','shapes'],
         currentmode:0,
+        canvascopy:null
     },
     this.shapedata={
         linewidth:10,
@@ -24,7 +25,8 @@ function DrawingBoard () {
         maxpages:1,
         minpages:1,
         select:null,
-        pages:[[]]
+        pages:[[]],
+        prev:[]
     },
     this.cursordata={
         x:0,
@@ -33,12 +35,6 @@ function DrawingBoard () {
         movey:0,
         lastx:0,
         lasty:0
-    },
-    this.line={
-
-    },
-    this.shapes={
-
     }
 };
 export {DrawingBoard}

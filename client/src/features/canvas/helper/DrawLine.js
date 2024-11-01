@@ -1,6 +1,7 @@
 import { handler } from "../../../helper/handler";
+import { DrawingBoard } from "./main";
 
-export  const DrawLine = (initx,inity,canvasx,canvasy,scale,canvas,color,linewidth,line,lineborder) => {
+DrawingBoard.prototype.DrawLine = function(){
     try{
         let x = (initx -  canvasx )/scale , y = (inity- canvasy)/scale  ;
         const overcontext = canvas.getContext('2d')

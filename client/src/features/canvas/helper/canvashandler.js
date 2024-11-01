@@ -74,16 +74,20 @@ DrawingBoard.prototype.createBoard = function() {
     try {
         const context = this.canvasdata.canvas.getContext('2d');
         context.setTransform(1, 0, 0, 1, 0, 0);
-        // clearBoard(context);
+        this.clearBoard(context);
         context.translate(this.canvasdata.x, this.canvasdata.y);
         context.fillStyle = "white";
         context.fillRect(0, 0, this.canvasdata.width * this.canvasdata.scale, this.canvasdata.height * this.canvasdata.scale);
-        // drawingcanvas && context.putImageData(drawingcanvas,0,0);
+        this.canvasdata.canvascopy && context.putImageData(this.canvasdata.canvascopy,0,0);
 
     } catch (error) {
         console.log(error);
         handler(500)
     }
+}
+
+DrawingBoard.prototype.clearBoard = function(CTX){
+    CTX.clearRect(0,0,this.canvasdata.width, this.canvasdata.height);
 }
 
 // DrawingBoard.prototype.draw = () => {
