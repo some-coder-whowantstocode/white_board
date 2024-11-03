@@ -2,7 +2,7 @@ import { handler } from "../../../helper/handler";
 import  {DrawingBoard}  from "./main";
 
 
-DrawingBoard.prototype.overCanvasredraw = () => {
+DrawingBoard.prototype.overCanvasredraw = function(){
     try {
         
         const overcanvas = this.canvasdata.overcanvas;
@@ -18,22 +18,21 @@ DrawingBoard.prototype.overCanvasredraw = () => {
         // move_elem.style.left = `${0}px`;
         if (this.shapedata.select) {
 
-
-            const { border } = SHAPE.select;
+            // const { border } = this.shapedata.select;
             // move_elem.style.height = `${(border.h - border.y) * SCALE}px`;
             // move_elem.style.width = `${(border.w - border.x) * SCALE}px`;
             // move_elem.style.top = `${(border.y * SCALE) + CANVAS.y}px`;
             // move_elem.style.left = `${(border.x * SCALE) + CANVAS.x}px`;
 
-            const { shape, linewidth, color, prev, id } = this.shapedata.select;
+            const { shape, linewidth, color, prev } = this.shapedata.select;
             if (shape === 'line') {
                 overcontext.beginPath();
-                overcontext.lineWidth = linewidth * SCALE;
+                overcontext.lineWidth = linewidth * this.canvasdata.scale;
                 overcontext.strokeStyle = color;
                 overcontext.lineCap = 'round';
                 overcontext.lineJoin = 'round';
                 for (let i = 0; i < prev.length; i++) {
-                    overcontext.lineTo(prev[i].x * SCALE, prev[i].y * SCALE);
+                    overcontext.lineTo(prev[i].x * this.canvasdata.scale, prev[i].y * this.canvasdata.scale);
                     overcontext.stroke();
                 }
                 overcontext.closePath();
@@ -46,5 +45,3 @@ DrawingBoard.prototype.overCanvasredraw = () => {
     }
 
 }
-
-export default DrawingBoard;

@@ -1,4 +1,5 @@
 import { DrawingBoard } from "./main";
+import { handler } from "../../../helper/handler";
 
 DrawingBoard.prototype.clearcanvas = () => {
     try {
@@ -40,8 +41,9 @@ DrawingBoard.prototype.move = ({ x, y }) => {
         console.log(error)
     }
 }
-DrawingBoard.prototype.changeMode = (mode) => {
+DrawingBoard.prototype.changeMode = function(mode){
     try {
+        console.log(mode)
         this.canvasdata.currentmode = mode;
     } catch (error) {
         console.log(error)
@@ -90,37 +92,40 @@ DrawingBoard.prototype.clearBoard = function(CTX){
     CTX.clearRect(0,0,this.canvasdata.width, this.canvasdata.height);
 }
 
-// DrawingBoard.prototype.draw = () => {
-//     try {
-//         const canv = self.canvasdata.canvas;
-//         if (!canv) return;
-//         this.createBoard(canv);
-//         const context = canv.getContext('2d');
-//         let arr = SHAPE.pages[PAGE - 1];
-//         arr.map((i) => {
-//             const { shape, linewidth, color, prev, id } = SHAPE.store[i];
-//             let draw = true;
-//             if (SHAPE.select && SHAPE.select.id === id) draw = false;
-//             if (draw) {
-//                 if (shape === 'line') {
-//                     context.beginPath()
-//                     context.lineCap = 'round';
-//                     context.lineJoin = 'round';
-//                     context.strokeStyle = color;
-//                     context.lineWidth = linewidth * SCALE;
-//                     context.moveTo(prev[0].x * SCALE, prev[0].y * SCALE)
-//                     for (let i = 1; i < prev.length; i++) {
-//                         context.lineTo(prev[i].x * SCALE, prev[i].y * SCALE);
-//                         context.stroke();
-//                     }
-//                     context.closePath();
-//                 }
+DrawingBoard.prototype.draw = function(){
+    try {
+        const canv = this.canvasdata.canvas;
+        if (!canv) return;
+        this.createBoard(canv);
+        const context = canv.getContext('2d');
+        let arr = this.shapedata.pages[this.shapedata.currentPage];
+        arr.map((i) => {
+            const { shape, linewidth, color, prev, id } = this.shapedata.store.get(i);
+            let draw = true;
+            console.log(this.shapedata.select,id)
+            if (this.shapedata.select && this.shapedata.select.id === id) draw = false;
+            if (draw) {
+                if (shape === 'line') {
+                    context.beginPath()
+                    context.lineCap = 'round';
+                    context.lineJoin = 'round';
+                    context.strokeStyle = color;
+                    context.lineWidth = linewidth * this.canvasdata.scale;
+                    context.moveTo(prev[0].x * this.canvasdata.scale, prev[0].y * this.canvasdata.scale)
+                    for (let i = 1; i < prev.length; i++) {
+                        context.lineTo(prev[i].x * this.canvasdata.scale, prev[i].y * this.canvasdata.scale);
+                        context.stroke();
+                    }
+                    context.closePath();
+                }
 
-//             }
-//         })
+            }
+        })
 
-//     } catch (error) {
-//         console.log(error);
-//         handler(500)
-//     }
-// }
+    } catch (error) {
+        console.log(error);
+        handler(500)
+    }
+}
+
+export default DrawingBoard

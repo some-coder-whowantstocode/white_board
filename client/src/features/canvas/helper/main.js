@@ -17,7 +17,7 @@ function DrawingBoard () {
     },
     this.shapedata={
         linewidth:10,
-        store:new Object(),
+        store:new Map(),
         color:'black',
         size:30,
         lineid:null,
@@ -26,7 +26,8 @@ function DrawingBoard () {
         minpages:1,
         select:null,
         pages:[[]],
-        prev:[]
+        linedata:[],
+        border:{ x:0, y:0 ,width:0 ,height:0 }
     },
     this.cursordata={
         x:0,

@@ -1,19 +1,19 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useCanvas } from "../features/canvas/context/canvasProvider.jsx";
+// import { useCanvas } from "../features/canvas/context/canvasProvider.jsx";
 import styled from "styled-components";
-import { addNode, getoneNode, updateNode } from "../features/database/services/indexedDB.js";
-import { useDispatch , useSelector } from "react-redux";
-import { addcanvas } from "../features/canvas/slices/canvasSlice.js";
-import { addLine, select, addshape, updateLine, release } from "../features/canvas/slices/shapesSlice.js";
-import { history } from "../App.jsx";
-import { useLocation } from "react-router-dom";
-import { isloggedin } from "../features/authentication/slices/authSlice.js";
+// import { addNode, getoneNode, updateNode } from "../features/database/services/indexedDB.js";
+// import { useDispatch , useSelector } from "react-redux";
+// import { addcanvas } from "../features/canvas/slices/canvasSlice.js";
+// import { addLine, select, addshape, updateLine, release } from "../features/canvas/slices/shapesSlice.js";
+// import { history } from "../App.jsx";
+// import { useLocation } from "react-router-dom";
+// import { isloggedin } from "../features/authentication/slices/authSlice.js";
 import Popups from "../features/popup/components/Popups.jsx";
-import { handler } from "../helper/handler.js";
+// import { handler } from "../helper/handler.js";
 import Processings from "../features/processes/components/processings.jsx";
 import Controller from "../features/canvas/components/Controller.jsx";
-import coverpage from '../assets/home page.jpg'
-import { DrawingBoard } from "../features/canvas/helper/index.js";
+// import coverpage from '../assets/home page.jpg'
+import { useCanvas } from "../features/canvas/context/canvasProvider.jsx";
 
 const DRAWING_PAGE = styled.div`
   height: 100dvh;
@@ -38,49 +38,49 @@ const OVER_CANVAS = styled.canvas`
   touch-action: none;
 `
 
-const MOVE_BOX = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 0;
-  width: 0;
-  background-color: transparent;
-  border: 3px solid black;
-  /* resize: both; */
-  overflow:auto;
-`
+// const MOVE_BOX = styled.div`
+//   position: fixed;
+//   top: 0;
+//   left: 0;
+//   height: 0;
+//   width: 0;
+//   background-color: transparent;
+//   border: 3px solid black;
+//   /* resize: both; */
+//   overflow:auto;
+// `
 
-const COVER_PAGE = styled.div`
-  position: relative;
-  height: 100dvh;
-  width: 100dvw;
-  z-index: 1000;
-  h1{
-    font-size: 4.3rem;
-    position: absolute;
-    top: 10%;
-    left: 50%;
-    transform: translateX(-50%);
-    color: white;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  }
-  img{
-    height: 100dvh;
-  width: 100dvw;
-  }
-`
+// const COVER_PAGE = styled.div`
+//   position: relative;
+//   height: 100dvh;
+//   width: 100dvw;
+//   z-index: 1000;
+//   h1{
+//     font-size: 4.3rem;
+//     position: absolute;
+//     top: 10%;
+//     left: 50%;
+//     transform: translateX(-50%);
+//     color: white;
+//     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+//   }
+//   img{
+//     height: 100dvh;
+//   width: 100dvw;
+//   }
+// `
 
 const Canvas = () => {
-  const drawingboard = new DrawingBoard();
   const overCanvasRef = useRef();
   const canvasRef = useRef();
   const pageRef = useRef();
-//   const mouse = useSelector((state)=>state.cursor);
-//   const CANVAS = useSelector((state)=>state.canvas);
-//   const MODE = useSelector((state)=>state.canvas.currentmode);
-//   const SCALE =  useSelector((state)=>state.canvas.scale);
-//   const SHAPE = useSelector((state)=>state.shape);
-//   const SELECTED = useSelector((state)=>state.shape.select);
+  const {drawingboard} = useCanvas();
+  //   const mouse = useSelector((state)=>state.cursor);
+  //   const CANVAS = useSelector((state)=>state.canvas);
+  //   const MODE = useSelector((state)=>state.canvas.currentmode);
+  //   const SCALE =  useSelector((state)=>state.canvas.scale);
+  //   const SHAPE = useSelector((state)=>state.shape);
+  //   const SELECTED = useSelector((state)=>state.shape.select);
 //   const PAGE = useSelector((state)=>state.shape.currentPage);
 //   const INTERNAL_PROCESSES = useSelector((state)=>state.process.internalProcesses);
 //   const { canvasRef, pageRef, overCanvasRef, moveref, drawingcanvas, setdrawing, overcontext, context } = useCanvas();
@@ -288,7 +288,6 @@ const Canvas = () => {
 
   useEffect(()=>{
     try {
-      
       drawingboard.canvasdata.canvas = canvasRef.current;
       drawingboard.canvasdata.overcanvas = overCanvasRef.current;
       drawingboard.canvasdata.canvas.height = window.innerHeight;
@@ -297,9 +296,15 @@ const Canvas = () => {
       drawingboard.canvasdata.overcanvas.width = window.innerWidth;
       drawingboard.createBoard();
 
-      window.addEventListener('mousedown',drawingboard.handledown.bind(drawingboard))
-      window.addEventListener('mouseup',drawingboard.handleup.bind(drawingboard))
-      // DrawingBoard.prototype
+      window.addEventListener('mousedown', drawingboard.handledown.bind(drawingboard));
+      window.addEventListener('mousemove', drawingboard.handleMove.bind(drawingboard));
+      window.addEventListener('mouseup', drawingboard.handleup.bind(drawingboard));
+
+      return(()=>{
+        window.removeEventListener('mousedown', drawingboard.handledown);
+        window.removeEventListener('mousemove', drawingboard.handleMove);
+        window.removeEventListener('mouseup', drawingboard.handleup);
+      })
     } catch (error) {
       console.log(error);
     }

@@ -1,4 +1,17 @@
 import { DrawingBoard } from "./main";
+import { handler } from "../../../helper/handler";
+import { v4 } from "uuid";
+
+/*
+{
+border: {x: 374, y: 249, h: 341, w: 428}
+color: "black"
+id: "20bc281c-eac6-4cac-ad06-a5132a10b651"
+linewidth: 10
+prev: (31) [{…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}]
+shape: "line"
+}
+*/
 
 DrawingBoard.prototype.handletouchstart = () => {
     try {
@@ -36,19 +49,26 @@ DrawingBoard.prototype.handledown = function(e){
         let x, y;
         x = e.clientX;
         y = e.clientY;
+        
         // this.overCanvasredraw();
         switch (this.canvasdata.currentmode) {
             case 0:
                 {
                     let x1 = (x - this.canvasdata.x) / this.canvasdata.scale;
                     let y1 = (y - this.canvasdata.y) / this.canvasdata.scale;
-                    this.shapedata.prev.push(x1,y1);
-                    const overcontext = this.canvasdata.canvas.getContext('2d')
-                    overcontext.beginPath();
-                    overcontext.arc(x1,y1,10,0,Math.PI * 2);
-                    console.log(x1,y1,this.shapedata.prev)
-                overcontext.closePath();
-                overcontext.stroke();
+                    this.shapedata.linedata.push({x:x1,y:y1});
+                    this.shapedata.border = {x:x1,y:y1,width:x1,height:y1};
+                    const context = this.canvasdata.canvas.getContext('2d');
+                    context.beginPath();
+                    context.lineCap = 'round';
+                    context.lineJoin = 'round';
+                    context.strokeStyle = this.shapedata.color;
+                    context.lineWidth = this.shapedata.linewidth * this.canvasdata.scale;
+                    context.fillStyle = this.shapedata.color;
+                    context.arc(x1,y1,this.shapedata.linewidth * this.canvasdata,0,Math.PI * 2);
+                    context.closePath();
+                    context.fill();
+                    context.stroke();
                 }
                 // setdraw(true);
                 break;
@@ -58,11 +78,11 @@ DrawingBoard.prototype.handledown = function(e){
 
                     let x1 = (x - this.canvasdata.x) / this.canvasdata.scale;
                     let y1 = (y - this.canvasdata.y) / this.canvasdata.scale;
-                    this.shapedata.prev.push(x1,y1);
+                    this.select({ x: x1, y: y1 });
+                    this.draw();
+                    this.overCanvasredraw()
+                    // sethold(true);
                 }
-                // this.select({ x: x1, y: y1 });
-                // this.draw();
-                // sethold(true);
 
                 break;
 
@@ -81,28 +101,33 @@ DrawingBoard.prototype.handletouchend =()=>{
     
 }
 
-DrawingBoard.prototype.handleup = function(e){
+DrawingBoard.prototype.handleup = function(){
     try {
         switch (this.canvasdata.currentmode) {
             case 0:
-                // setdraw(false);
-                if (this.shapedata.prev.length > 0) {
-                    // dispatch(addLine({ prev: line.current, border: lineborder.current }));
-                    this.shapedata.prev = [];
-                    // lineborder.current = { x: 0, y: 0, w: 0, h: 0 }
-                    // const overcontext = overcanvas.getContext('2d');
-                    // clearBoard(overcontext);
-                    // draw();
+                if (this.shapedata.linedata.length > 0) {
+                    const newval = this.shapedata.pages[this.shapedata.pages.length - 1 ];
+                    let id = v4();
+                    this.shapedata.store.set(id,{
+                        id,
+                        color: this.shapedata.color,
+                        prev:this.shapedata.linedata,
+                        linewidth:this.shapedata.linewidth,
+                        shape:'line',
+                        border: this.shapedata.border
+                    })
+                    newval.push(id);
+                    this.shapedata.pages.push(newval);
+                    this.shapedata.linedata = [];
+                    this.shapedata.border = {x:0,y:0,width:0,height:0}
                 }
 
                 break;
 
             case 1:
-                sethold(false);
-
-                dispatch(release());
-                if (hold) {
-                    draw();
+                if(this.shapedata.select){
+                    this.shapedata.select = null;
+                    this.draw();
                 }
                 break;
 
@@ -125,17 +150,47 @@ DrawingBoard.prototype.handleMove = function(e){
             x = e.clientX;
             y = e.clientY;
 
-        switch (MODE) {
+        switch (this.canvasdata.currentmode) {
             case 0:
-                if (freedraw) {
-                    DrawLine(x, y, CANVAS.x, CANVAS.y, SCALE, overCanvasRef.current, SHAPE.color, SHAPE.linewidth, line, lineborder);
+                {
+                    if(this.shapedata.linedata.length <= 0) return;
+                    let x1 = (x - this.canvasdata.x) / this.canvasdata.scale;
+                    let y1 = (y - this.canvasdata.y) / this.canvasdata.scale;
+                    this.shapedata.linedata.push({x:x1,y:y1});
+                    if(x1 < this.shapedata.border.x){
+                        this.shapedata.border.x = x1;
+                    }
+                    if(y1 < this.shapedata.border.y){
+                        this.shapedata.border.y = y1;
+                    }
+                    if(y1 > this.shapedata.border.height){
+                        this.shapedata.border.height = y1;
+                    }
+                    if(x1 > this.shapedata.border.width){
+                        this.shapedata.border.width = x1;
+                    }
+                    
+                    const context = this.canvasdata.canvas.getContext('2d');
+                    context.beginPath();
+                    context.lineCap = 'round';
+                    context.lineJoin = 'round';
+                    context.strokeStyle = this.shapedata.color;
+                    context.lineWidth = this.shapedata.linewidth * this.canvasdata.scale;
+                    context.moveTo(this.shapedata.linedata[this.shapedata.linedata.length-2].x,this.shapedata.linedata[this.shapedata.linedata.length-2].y);
+                    context.lineTo(x1,y1);
+                    context.closePath();
+                    context.stroke(); 
                 }
                 break;
 
             case 1:
-                if (hold && SHAPE.select) {
-                    dispatch(updateLine({ i: x - mouse.x, j: y - mouse.y }));
-                    overCanvasredraw()
+                if (this.shapedata.select) {
+                    let i = e.movementX;
+                    let j = e.movementY;
+                    console.log(e)
+                    this.updateLine(i,j);
+                    // dispatch(updateLine({ i: x - mouse.x, j: y - mouse.y }));
+                    this.overCanvasredraw();
                 }
                 break;
 

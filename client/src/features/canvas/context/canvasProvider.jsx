@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { downscale, move, upscale, changeMode, clearcanvas } from "../slices/canvasSlice.js";
 import { clearshape, redo, undo } from "../slices/shapesSlice.js";
 import { history } from "../../../App.jsx";
+import { DrawingBoard } from "../helper/index.js";
 
 
 
@@ -24,6 +25,8 @@ export const CanvasProvider =({children})=>{
 //   const overcontext = useRef(null);
   const [context,setctx] = useState();
   const [overcontext,setoverctx] = useState()
+  const drawingboard = new DrawingBoard();
+
   
     const dispatch = useDispatch();
 
@@ -84,7 +87,9 @@ export const CanvasProvider =({children})=>{
 
         {
             icon:IconBox.DRAW.icon,
-            func(){dispatch(changeMode(0))},
+            func(){
+                drawingboard.changeMode(0)
+            },
             type:IconBox.DRAW.name,
             mode:MODES.Draw,
             shape:SHAPES.NONE,
@@ -110,7 +115,9 @@ export const CanvasProvider =({children})=>{
 
         {
             icon:IconBox.MOVE.icon,
-            func(){dispatch(changeMode(1))},
+            func(){
+                drawingboard.changeMode(1)
+            },
             type:IconBox.MOVE.name,
             mode:MODES.Move,
             shape:SHAPES.NONE,
@@ -187,7 +194,8 @@ export const CanvasProvider =({children})=>{
             context,
             overcontext,
             setctx,
-            setoverctx
+            setoverctx,
+            drawingboard
             }}>
 
         {children}
