@@ -32,7 +32,7 @@ DrawingBoard.prototype.addcanvas = (obj) => {
         console.log(error)
     }
 }
-DrawingBoard.prototype.move = ({ x, y }) => {
+DrawingBoard.prototype.move = function({ x, y }){
     try {
         this.canvasdata.x += x;
         this.canvasdata.y += y;
@@ -79,7 +79,7 @@ DrawingBoard.prototype.createBoard = function() {
         this.clearBoard(context);
         context.translate(this.canvasdata.x, this.canvasdata.y);
         context.fillStyle = "white";
-        context.fillRect(0, 0, this.canvasdata.width * this.canvasdata.scale, this.canvasdata.height * this.canvasdata.scale);
+        context.fillRect(0, 0, this.canvasdata.width , this.canvasdata.height );
         this.canvasdata.canvascopy && context.putImageData(this.canvasdata.canvascopy,0,0);
 
     } catch (error) {
@@ -92,6 +92,21 @@ DrawingBoard.prototype.clearBoard = function(CTX){
     CTX.clearRect(0,0,this.canvasdata.width, this.canvasdata.height);
 }
 
+DrawingBoard.prototype.redraw = function(){
+    try {
+        const context = this.canvasdata.canvas.getContext('2d');
+        context.setTransform(1, 0, 0, 1, 0, 0);
+        this.clearBoard(context);
+        context.translate(this.canvasdata.x, this.canvasdata.y);
+        context.fillStyle = "white";
+        context.fillRect(0, 0, this.canvasdata.width * this.canvasdata.scale, this.canvasdata.height * this.canvasdata.scale);
+        this.canvasdata.canvascopy && context.putImageData(this.canvasdata.canvascopy,0,0);
+
+    } catch (error) {
+        console.log(error);
+    }
+}
+
 DrawingBoard.prototype.draw = function(){
     try {
         const canv = this.canvasdata.canvas;
@@ -102,7 +117,6 @@ DrawingBoard.prototype.draw = function(){
         arr.map((i) => {
             const { shape, linewidth, color, prev, id } = this.shapedata.store.get(i);
             let draw = true;
-            console.log(this.shapedata.select,id)
             if (this.shapedata.select && this.shapedata.select.id === id) draw = false;
             if (draw) {
                 if (shape === 'line') {

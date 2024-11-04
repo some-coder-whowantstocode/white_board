@@ -88,7 +88,8 @@ export const CanvasProvider =({children})=>{
         {
             icon:IconBox.DRAW.icon,
             func(){
-                drawingboard.changeMode(0)
+                drawingboard.changeMode(0);
+                {dispatch(changeMode(MODES.Draw))}
             },
             type:IconBox.DRAW.name,
             mode:MODES.Draw,
@@ -117,6 +118,7 @@ export const CanvasProvider =({children})=>{
             icon:IconBox.MOVE.icon,
             func(){
                 drawingboard.changeMode(1)
+                {dispatch(changeMode(MODES.Move))}
             },
             type:IconBox.MOVE.name,
             mode:MODES.Move,
@@ -157,7 +159,10 @@ export const CanvasProvider =({children})=>{
         },
         {
             icon:IconBox.CURSOR.icon,
-            func(){dispatch(changeMode(MODES.Cursor))},
+            func(){
+                drawingboard.changeMode(2)
+                dispatch(changeMode(MODES.Cursor))
+            },
             type:IconBox.CURSOR.name,
             mode:MODES.Cursor,
             shape:SHAPES.NONE,

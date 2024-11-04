@@ -5,15 +5,17 @@ function DrawingBoard () {
         x:0,
         y:0,
         scale:1,
-        height:650,
-        width:1450,
+        height:innerHeight,
+        width:innerWidth,
         maxscale:Number.MAX_SAFE_INTEGER,
         minscale:0.2,
         scaleunit:0.1,
         background:'white',
         modes:['draw','move','cursor','shapes'],
         currentmode:0,
-        canvascopy:null
+        canvascopy:null,
+        canvasmove:false,
+        imagedata:null
     },
     this.shapedata={
         linewidth:10,
@@ -37,5 +39,5 @@ function DrawingBoard () {
         lastx:0,
         lasty:0
     }
-};
+}
 export {DrawingBoard}

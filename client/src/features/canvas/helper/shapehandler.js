@@ -113,10 +113,8 @@ DrawingBoard.prototype.select = function({x,y}){
         this.shapedata.pages[this.shapedata.currentPage].map((id)=>{
             const element = this.shapedata.store.get(id);
             const {border} = element;
-            console.log(border,x,y)
             if((x >= border.x && x <= border.width) &&( y <= border.height && y >= border.y) ){
                 this.shapedata.select = element;
-                console.log(this.shapedata.select)
                 this.draw()
             }
         })
@@ -153,3 +151,5 @@ DrawingBoard.prototype.select = function({x,y}){
 //         state.currentPage += 1;
 //     }
 // }
+
+export default DrawingBoard

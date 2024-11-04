@@ -290,7 +290,7 @@ const Canvas = () => {
     try {
       drawingboard.canvasdata.canvas = canvasRef.current;
       drawingboard.canvasdata.overcanvas = overCanvasRef.current;
-      drawingboard.canvasdata.canvas.height = window.innerHeight;
+      drawingboard.canvasdata.canvas.height = window.innerHeight ;
       drawingboard.canvasdata.canvas.width = window.innerWidth;
       drawingboard.canvasdata.overcanvas.height = window.innerHeight;
       drawingboard.canvasdata.overcanvas.width = window.innerWidth;

@@ -88,6 +88,7 @@ DrawingBoard.prototype.handledown = function(e){
 
             case 2:
                 // setmoving(true);
+                this.canvasdata.canvasmove = true;
                 break;
         }
     } catch (err) {
@@ -120,8 +121,9 @@ DrawingBoard.prototype.handleup = function(){
                     this.shapedata.pages.push(newval);
                     this.shapedata.linedata = [];
                     this.shapedata.border = {x:0,y:0,width:0,height:0}
+                    // const ctx = this.canvasdata.canvas.getContext('2d');
+                    // this.canvasdata.canvascopy = ctx.getImageData(this.canvasdata.x,this.canvasdata.y,this.canvasdata.width, this.canvasdata.height)
                 }
-
                 break;
 
             case 1:
@@ -132,8 +134,7 @@ DrawingBoard.prototype.handleup = function(){
                 break;
 
             case 2:
-                setmoving(false);
-                canvasmove && draw();
+                if(this.canvasdata.canvasmove) this.canvasdata.canvasmove = false;
                 break;
         }
     } catch (error) {
@@ -187,17 +188,17 @@ DrawingBoard.prototype.handleMove = function(e){
                 if (this.shapedata.select) {
                     let i = e.movementX;
                     let j = e.movementY;
-                    console.log(e)
                     this.updateLine(i,j);
-                    // dispatch(updateLine({ i: x - mouse.x, j: y - mouse.y }));
                     this.overCanvasredraw();
                 }
                 break;
 
             case 2:
-                if (canvasmove) {
-                    dispatch(move({ x: x - mouse.x, y: y - mouse.y }));
-                    createBoard(canvasRef.current);
+                if (this.canvasdata.canvasmove) {
+                    this.move({ x: e.movementX, y:e.movementY });
+                    // dispatch(move());
+                    this.createBoard();
+                    // this.draw();
                 }
                 break;
         }
@@ -237,3 +238,5 @@ DrawingBoard.prototype.handletouchmove = (e) => {
     }
 
 }
+
+export default DrawingBoard
