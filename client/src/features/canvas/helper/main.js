@@ -40,4 +40,4 @@ function DrawingBoard () {
         lasty:0
     }
 }
-export {DrawingBoard}
+export default DrawingBoard

@@ -288,6 +288,7 @@ const Canvas = () => {
 
   useEffect(()=>{
     try {
+      // quad tree
       drawingboard.canvasdata.canvas = canvasRef.current;
       drawingboard.canvasdata.overcanvas = overCanvasRef.current;
       drawingboard.canvasdata.canvas.height = window.innerHeight ;

@@ -1,5 +1,5 @@
 import { handler } from "../../../helper/handler";
-import  {DrawingBoard}  from "./main";
+import  DrawingBoard  from "./main";
 
 
 DrawingBoard.prototype.overCanvasredraw = function(){
@@ -45,3 +45,5 @@ DrawingBoard.prototype.overCanvasredraw = function(){
     }
 
 }
+
+export default DrawingBoard

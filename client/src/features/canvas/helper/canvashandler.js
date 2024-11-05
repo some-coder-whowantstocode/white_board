@@ -1,4 +1,4 @@
-import { DrawingBoard } from "./main";
+import DrawingBoard  from "./main";
 import { handler } from "../../../helper/handler";
 
 DrawingBoard.prototype.clearcanvas = () => {

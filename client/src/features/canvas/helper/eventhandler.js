@@ -1,4 +1,4 @@
-import { DrawingBoard } from "./main";
+import DrawingBoard  from "./main";
 import { handler } from "../../../helper/handler";
 import { v4 } from "uuid";
 

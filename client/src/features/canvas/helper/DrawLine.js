@@ -1,5 +1,5 @@
 import { handler } from "../../../helper/handler";
-import { DrawingBoard } from "./main";
+import DrawingBoard from "./main";
 
 DrawingBoard.prototype.DrawLine = function(){
     try{
@@ -36,3 +36,5 @@ DrawingBoard.prototype.DrawLine = function(){
     }
     
     };
+
+export default DrawingBoard

@@ -1,4 +1,4 @@
-import { DrawingBoard } from "./main";
+import DrawingBoard  from "./main";
 
 // changeColor(state,action){
 //     state.color = action.payload;

@@ -1,9 +1,8 @@
-import {DrawingBoard} from './main';
-import './canvashandler';
+import DrawingBoard from './main';
 import './shapehandler';
-import './cursorhandler';
-import "./overcanvasredraw";
 import './eventhandler';
+import './canvashandler';
+import "./overcanvasredraw";
 
 
 export {DrawingBoard};
