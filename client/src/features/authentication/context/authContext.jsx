@@ -4,7 +4,7 @@ import { popexternalProcess, pushexternalProcess } from "../../processes/slices/
 import axios from "axios";
 import { userServiceping } from "../../../helper/ping";
 import { handler } from "../../../helper/handler";
-import { updateping } from "../slices/authSlice";
+import { logIn, updateping } from "../slices/authSlice";
 import { pagelocation } from "../../../assets/pagesheet";
 import { history } from "../../../App";
 
