@@ -120,6 +120,7 @@ export const AuthProvider =({children})=>{
                     withCredentials: true 
                 });
                 const {user} = data;
+                console.log(user);
                 if(!user.verified){
                     history.navigate(pagelocation.notverified);
                     return;
