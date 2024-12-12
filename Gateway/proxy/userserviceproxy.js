@@ -8,7 +8,7 @@ const userServiceProxy = createProxyMiddleware({
   timeout: 30000, 
   on: {
     proxyReq: (proxyReq, req, res) => {
-      const origin = process.env.CURRENT;
+      const origin = process.env.CLIENT;
       if (origin) {
         proxyReq.setHeader('origin', origin);
         console.log(`Origin header set to: ${origin}`);
