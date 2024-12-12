@@ -7,7 +7,7 @@ import { handler } from "../../../helper/handler";
 import { updateping } from "../slices/authSlice";
 import { pagelocation } from "../../../assets/pagesheet";
 import { history } from "../../../App";
-
+import { logIn } from "../slices/authSlice.js";
 const authContext = createContext(null);
 
 
