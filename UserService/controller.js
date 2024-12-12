@@ -63,7 +63,7 @@ const Register = async(req, res, next) => {
     if (!name || !email || !password) {
     throw new BadRequest('Please provide all required');      
     }
-
+    console.log(user);
     const user = await User.findOne({email});
         if (user){
       next(new BadRequest('User already exists'))
